@@ -45,7 +45,7 @@ struct CityTile: View {
                         }
                         Spacer()
                         VStack {
-                            Text("\(String(format: "%.1f", data!.temp_c))°C")
+                            Text("C")
                         }
                     }
                 }
@@ -59,7 +59,7 @@ struct CityTile: View {
             
             let data: [String: String] = [ "location": cityName ]
             
-            Functions.functions(region: "europe-west3").httpsCallable("getLocation")
+            /*Functions.functions(region: "europe-west3").httpsCallable("getLocation")
                 .call(data) { (result, error) in
                     
                     print(error, result)
@@ -94,7 +94,7 @@ struct CityTile: View {
                     }
                     
                     self.data = City(name: city, country: country, temp_c: temp_c)
-                }
+                }*/
         }
     }
 }
