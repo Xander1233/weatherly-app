@@ -39,7 +39,7 @@ struct HomeView: View {
             } else {
                 ScrollView {
                     ForEach($favorites, id: \.self) { favorite in
-                        CityTile(cityName: favorite.wrappedValue)
+                        // CityTile(cityName: favorite.wrappedValue)
                     }
                 }
                 .navigationTitle("Favorites")

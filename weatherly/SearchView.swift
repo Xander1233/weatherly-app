@@ -12,22 +12,22 @@ struct SearchView: View {
     
     @State var searchQuery = ""
     
-    @State var cityData: [City] = [
-        
-    ]
+    @State var cityData: [City] = []
     
     var body: some View {
         NavigationView {
             List {
                 ForEach(cityData) { element in
-                    Text("\(element.name), \(element.region), \(element.country)")
-                        .onTapGesture {
-                            searchQuery = "\(element.name)\(element.region.isEmpty ? "" : ", \(element.region)"), \(element.country)"
-                        }
+                    NavigationLink {
+                        CityView(data: element)
+                    } label: {
+                        Text("\(element.name), \(element.region), \(element.country)")
+                    }
                 }
             }
             .listStyle(.plain)
             .navigationTitle("Search")
+            .navigationBarTitleDisplayMode(.inline)
             .searchable(text: $searchQuery, prompt: "Search for a city")
             .onChange(of: searchQuery) { (newQ) in
                 getData()
