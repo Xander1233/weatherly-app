@@ -18,25 +18,72 @@ struct CityView: View {
     
     @State var locData: WeatherDataCity? = nil
     
+    @State var isFavorite = false
+    
+    @State var showAlert = false
+    
     var body: some View {
         
         VStack {
             
-            if !errorMessage.isEmpty {
-                Text("😦 \(errorMessage)")
-                    .font(.title)
-                    .foregroundColor(.red)
-                    .padding(.all, 10)
+            if locData != nil {
+                
+                VStack {
+                    
+                    Button {
+                        if isFavorite {
+                            removeFromFavorites()
+                        } else {
+                            addToFavorites()
+                        }
+                    } label: {
+                        Image(systemName: isFavorite ? "star.fill" : "star")
+                    }
+                    
+                    ScrollView {
+                        
+                        ScrollView(.horizontal) {
+                            HStack {
+                                // ForEach(locData!.forecast) { (day) in
+                                    ForEach(locData!.forecast.first!.hours) { (hour) in
+                                        HourView(data: hour)
+                                    }
+                                // }
+                            }
+                        }
+                        
+                        
+                        
+                    }
+                    
+                }
+                
             } else {
-                
-                
-                
+                ProgressView()
+                Text("Fetching Data")
             }
-            
+        }
+        .alert(isPresented: $showAlert) {
+            Alert(title: Text("Failed to add " + data.name + " to your favorites"))
         }
         .navigationTitle("\(data.name)")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
+            
+            Functions.functions(region: "europe-west3")
+                .httpsCallable("isFavorite")
+                .call(["name": data.name, "region": data.region, "country": data.country]) { (result, error) in
+                    
+                    if let error = error {
+                        errorMessage = error.localizedDescription
+                        return
+                    }
+                    
+                    if let res = result?.data as? [String:Any] {
+                        isFavorite = (res["isFavorite"] as? Bool) ?? false
+                    }
+                    
+                }
             
             Functions.functions(region: "europe-west3")
                 .httpsCallable("getLocation")
@@ -53,15 +100,15 @@ struct CityView: View {
                         
                         var forecastRes: [WeatherDataForecastDay] = []
                         
-                        if let forecast = resData["forecast"] as? [[String: Any]] {
+                        if let forecastOuter = resData["forecast"] as? [String: Any], let forecastInnerOuter = forecastOuter["forecast"] as? [String: Any], let forecast = forecastInnerOuter["forecastday"] as? [Any] {
                             
                             for i in 0..<forecast.count {
                                 
-                                let entry = forecast[i]
+                                let entry = forecast[i] as! [String: Any]
                                 
                                 var date: String = ""
-                                var day_maxtemp: Float = 0.0
-                                var day_mintemp: Float = 0.0
+                                var day_maxtemp: Double = 0.0
+                                var day_mintemp: Double = 0.0
                                 var day_chanceRain: Int = 0
                                 var day_chanceSnow: Int = 0
                                 var day_condition_text: String = ""
@@ -74,11 +121,11 @@ struct CityView: View {
                                 
                                 if let resDayData = entry["day"] as? [String: Any] {
                                     
-                                    if let resDayMaxTemp = resDayData["maxtemp_c"] as? Float {
+                                    if let resDayMaxTemp = resDayData["maxtemp_c"] as? Double {
                                         day_maxtemp = resDayMaxTemp
                                     }
                                     
-                                    if let resDayMinTemp = resDayData["mintemp_c"] as? Float {
+                                    if let resDayMinTemp = resDayData["mintemp_c"] as? Double {
                                         day_mintemp = resDayMinTemp
                                     }
                                     
@@ -102,27 +149,27 @@ struct CityView: View {
                                 }
                                 
                                 
-                                if let entryHours = entry["hour"] as? [[String: Any]] {
+                                if let entryHours = entry["hour"] as? [Any] {
                                     for j in 0..<entryHours.count {
                                         
-                                        let hourData = entryHours[j]
+                                        let hourData = entryHours[j] as! [String: Any]
                                         
                                         var hourTime: String = ""
-                                        var hourTemp: Float = 0.0
+                                        var hourTemp: Double = 0.0
                                         var hourConditionText: String = ""
                                         var hourConditionCode: Int = 0
-                                        var hourWindKph: Float = 0.0
+                                        var hourWindKph: Double = 0.0
                                         var hourWindDegree: Int = 0
-                                        var hourPrecip: Float = 0.0
+                                        var hourPrecip: Double = 0.0
                                         var hourChanceOfRain: Int = 0
                                         var hourChanceOfSnow: Int = 0
-                                        var hourVis: Float = 0.0
+                                        var hourVis: Double = 0.0
                                         
                                         if let resTime = hourData["time"] as? String {
                                             hourTime = resTime
                                         }
                                         
-                                        if let resTemp = hourData["temp_c"] as? Float {
+                                        if let resTemp = hourData["temp_c"] as? Double {
                                             hourTemp = resTemp
                                         }
                                         
@@ -136,7 +183,7 @@ struct CityView: View {
                                             }
                                         }
                                         
-                                        if let windKph = hourData["wind_kph"] as? Float {
+                                        if let windKph = hourData["wind_kph"] as? Double {
                                             hourWindKph = windKph
                                         }
                                         
@@ -144,7 +191,7 @@ struct CityView: View {
                                             hourWindDegree = windDeg
                                         }
                                         
-                                        if let precip = hourData["precip_mm"] as? Float {
+                                        if let precip = hourData["precip_mm"] as? Double {
                                             hourPrecip = precip
                                         }
                                         
@@ -156,17 +203,15 @@ struct CityView: View {
                                             hourChanceOfSnow = chanceSnow
                                         }
                                         
-                                        if let vis = hourData["vis_km"] as? Float {
+                                        if let vis = hourData["vis_km"] as? Double {
                                             hourVis = vis
                                         }
                                         
                                         hours.append(WeatherDataForecastDayHour(time: hourTime, temp_c: hourTemp, condition: WeatherDataCondition(text: hourConditionText, code: hourConditionCode), wind_kph: hourWindKph, wind_degree: hourWindDegree, precip_mm: hourPrecip, chanceOfRain: hourChanceOfRain, chanceOfSnow: hourChanceOfSnow, vis_km: hourVis))
-                                        
                                     }
                                 }
                                 
                                 forecastRes.append(WeatherDataForecastDay(date: date, maxtemp_c: day_maxtemp, mintemp_c: day_mintemp, chanceOfRain: day_chanceRain, chanceOfSnow: day_chanceSnow, condition: WeatherDataCondition(text: day_condition_text, code: day_condition_code), hours: hours))
-                                
                             }
                             
                         }
@@ -180,31 +225,67 @@ struct CityView: View {
         }
         
     }
+    
+    private func addToFavorites() {
+        
+        Functions.functions(region: "europe-west3")
+            .httpsCallable("addToFavorites")
+            .call(["city": data.name, "country": data.country, "region": data.region]) { (result, error) in
+                
+                if let error = error {
+                    errorMessage = error.localizedDescription
+                    showAlert = true
+                    return
+                }
+                
+                isFavorite = true
+                
+            }
+        
+    }
+    
+    private func removeFromFavorites() {
+        
+        Functions.functions(region: "europe-west3")
+            .httpsCallable("removeFromFavorites")
+            .call(["city": data.name, "country": data.country, "region": data.region]) { (result, error) in
+                
+                if let error = error {
+                    errorMessage = error.localizedDescription
+                    showAlert = true
+                    return
+                }
+                
+                isFavorite = false
+                
+            }
+        
+    }
 }
 
 
 struct WeatherDataCity {
     let id = UUID()
-    let forecast: [WeatherDataForecastDay]
-    let current: WeatherDataCurrent? = nil
-    let alerts: [WeatherDataAlerts] = []
+    var forecast: [WeatherDataForecastDay] = []
+    var current: WeatherDataCurrent? = nil
+    var alerts: [WeatherDataAlerts] = []
 }
 
 struct WeatherDataCurrent {
-    let temp_c: Float
+    let temp_c: Double
     let condition: WeatherDataCondition
-    let wind_kph: Float
+    let wind_kph: Double
     let wind_degree: Int
-    let vis_km: Float
-    let uv: Float
-    let precip_mm: Float
+    let vis_km: Double
+    let uv: Double
+    let precip_mm: Double
 }
 
 struct WeatherDataForecastDay: Identifiable {
     let id: UUID = UUID()
     let date: String
-    let maxtemp_c: Float
-    let mintemp_c: Float
+    let maxtemp_c: Double
+    let mintemp_c: Double
     let chanceOfRain: Int
     let chanceOfSnow: Int
     let condition: WeatherDataCondition
@@ -214,14 +295,14 @@ struct WeatherDataForecastDay: Identifiable {
 struct WeatherDataForecastDayHour: Identifiable {
     let id: UUID = UUID()
     let time: String
-    let temp_c: Float
+    let temp_c: Double
     let condition: WeatherDataCondition
-    let wind_kph: Float
+    let wind_kph: Double
     let wind_degree: Int
-    let precip_mm: Float
+    let precip_mm: Double
     let chanceOfRain: Int
     let chanceOfSnow: Int
-    let vis_km: Float
+    let vis_km: Double
 }
 
 struct WeatherDataCondition {

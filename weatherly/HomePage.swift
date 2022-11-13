@@ -11,7 +11,7 @@ import FirebaseAuth
 
 struct HomeView: View {
     
-    @State var favorites: [String] = []
+    @State var favorites: [City] = []
     
     @State var name = "David"
     
@@ -37,13 +37,43 @@ struct HomeView: View {
                     }
                 }
             } else {
-                ScrollView {
-                    ForEach($favorites, id: \.self) { favorite in
-                        // CityTile(cityName: favorite.wrappedValue)
+                List {
+                    ForEach(favorites) { favorite in
+                        NavigationLink {
+                            CityView(data: favorite)
+                        } label: {
+                            FavoriteView(data: favorite)
+                        }
+                    }
+                    .onMove { (from, to) in
+                        favorites.move(fromOffsets: from, toOffset: to)
+                        
+                        let data = [
+                            "favorites": favorites.map { city in
+                                return [
+                                    "city": city.name,
+                                    "region": city.region,
+                                    "country": city.country
+                                ]
+                            }
+                        ]
+                        
+                        Functions.functions(region: "europe-west3")
+                            .httpsCallable("rearrangeFavorites")
+                            .call(data) { (result, error) in
+                                if let error = error {
+                                    print(error.localizedDescription)
+                                    return
+                                }
+                                
+                            }
                     }
                 }
                 .navigationTitle("Favorites")
                 .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    EditButton()
+                }
             }
         }
         .onAppear {
@@ -68,11 +98,34 @@ struct HomeView: View {
                     return
                 }
                 
-                if let data = result?.data as? String {
-                    print(data)
-                    favorites = data.components(separatedBy: ", ")
+                if let favoritesArray = result?.data as? [[String: Any]] {
+                    
+                    favorites = []
+                    
+                    for i in 0..<favoritesArray.count {
+                        
+                        let favorite = favoritesArray[i]
+                        
+                        var name = ""
+                        var region = ""
+                        var country = ""
+                        
+                        if let cityName = favorite["name"] as? String {
+                            name = cityName
+                        }
+                        
+                        if let cityRegion = favorite["region"] as? String {
+                            region = cityRegion
+                        }
+                        
+                        if let cityCountry = favorite["country"] as? String {
+                            country = cityCountry
+                        }
+                        
+                        favorites.append(City(name: name, country: country, region: region))
+                    }
+                    
                 }
-                
             }
     }
 }

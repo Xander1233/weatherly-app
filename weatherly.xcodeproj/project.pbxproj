@@ -7,12 +7,19 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6342C72B2920276500C34A3C /* Signup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6342C72A2920276500C34A3C /* Signup.swift */; };
+		6342C72D292028FC00C34A3C /* SignupSocialButtons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6342C72C292028FC00C34A3C /* SignupSocialButtons.swift */; };
+		6342C72F2920293E00C34A3C /* SignupFields.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6342C72E2920293E00C34A3C /* SignupFields.swift */; };
 		634AFC2528FAA08500508FED /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 634AFC2428FAA08500508FED /* GoogleSignIn */; };
 		634AFC2728FAA08500508FED /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 634AFC2628FAA08500508FED /* GoogleSignInSwift */; };
 		634AFC2D28FAE58700508FED /* SocialLoginButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 634AFC2C28FAE58700508FED /* SocialLoginButton.swift */; };
 		634AFC3028FAE82E00508FED /* LabelledDivider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 634AFC2F28FAE82E00508FED /* LabelledDivider.swift */; };
 		634AFC3228FAE98400508FED /* LoginFields.swift in Sources */ = {isa = PBXBuildFile; fileRef = 634AFC3128FAE98400508FED /* LoginFields.swift */; };
 		634AFC3528FC7E2A00508FED /* UserSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 634AFC3428FC7E2A00508FED /* UserSetupView.swift */; };
+		634AFC3C2902EBDF00508FED /* HourView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 634AFC3B2902EBDF00508FED /* HourView.swift */; };
+		634AFC3E2902EC3400508FED /* WeatherConditionCodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 634AFC3D2902EC3400508FED /* WeatherConditionCodes.swift */; };
+		634AFC402902F5D400508FED /* DayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 634AFC3F2902F5D400508FED /* DayView.swift */; };
+		634AFC422903DF2F00508FED /* FavoriteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 634AFC412903DF2F00508FED /* FavoriteView.swift */; };
 		6375BD7228ED8F7100F640C8 /* weatherlyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6375BD7128ED8F7100F640C8 /* weatherlyApp.swift */; };
 		6375BD7428ED8F7100F640C8 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6375BD7328ED8F7100F640C8 /* ContentView.swift */; };
 		6375BD7628ED8F7400F640C8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6375BD7528ED8F7400F640C8 /* Assets.xcassets */; };
@@ -40,10 +47,17 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		6342C72A2920276500C34A3C /* Signup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Signup.swift; sourceTree = "<group>"; };
+		6342C72C292028FC00C34A3C /* SignupSocialButtons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignupSocialButtons.swift; sourceTree = "<group>"; };
+		6342C72E2920293E00C34A3C /* SignupFields.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignupFields.swift; sourceTree = "<group>"; };
 		634AFC2C28FAE58700508FED /* SocialLoginButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialLoginButton.swift; sourceTree = "<group>"; };
 		634AFC2F28FAE82E00508FED /* LabelledDivider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabelledDivider.swift; sourceTree = "<group>"; };
 		634AFC3128FAE98400508FED /* LoginFields.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginFields.swift; sourceTree = "<group>"; };
 		634AFC3428FC7E2A00508FED /* UserSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSetupView.swift; sourceTree = "<group>"; };
+		634AFC3B2902EBDF00508FED /* HourView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HourView.swift; sourceTree = "<group>"; };
+		634AFC3D2902EC3400508FED /* WeatherConditionCodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherConditionCodes.swift; sourceTree = "<group>"; };
+		634AFC3F2902F5D400508FED /* DayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayView.swift; sourceTree = "<group>"; };
+		634AFC412903DF2F00508FED /* FavoriteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteView.swift; sourceTree = "<group>"; };
 		6375BD6E28ED8F7100F640C8 /* weatherly.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = weatherly.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6375BD7128ED8F7100F640C8 /* weatherlyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = weatherlyApp.swift; sourceTree = "<group>"; };
 		6375BD7328ED8F7100F640C8 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -86,6 +100,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		6342C7292920275600C34A3C /* Signup */ = {
+			isa = PBXGroup;
+			children = (
+				6342C72A2920276500C34A3C /* Signup.swift */,
+				6342C72C292028FC00C34A3C /* SignupSocialButtons.swift */,
+				6342C72E2920293E00C34A3C /* SignupFields.swift */,
+			);
+			path = Signup;
+			sourceTree = "<group>";
+		};
 		634AFC2B28FAE57400508FED /* SocialLogins */ = {
 			isa = PBXGroup;
 			children = (
@@ -110,6 +134,16 @@
 			path = UserSetup;
 			sourceTree = "<group>";
 		};
+		634AFC3A2902EBD100508FED /* City */ = {
+			isa = PBXGroup;
+			children = (
+				634AFC3B2902EBDF00508FED /* HourView.swift */,
+				634AFC3D2902EC3400508FED /* WeatherConditionCodes.swift */,
+				634AFC3F2902F5D400508FED /* DayView.swift */,
+			);
+			path = City;
+			sourceTree = "<group>";
+		};
 		6375BD6528ED8F7100F640C8 = {
 			isa = PBXGroup;
 			children = (
@@ -129,6 +163,7 @@
 		6375BD7028ED8F7100F640C8 /* weatherly */ = {
 			isa = PBXGroup;
 			children = (
+				634AFC3A2902EBD100508FED /* City */,
 				634AFC2E28FAE80F00508FED /* Util */,
 				639B026128F495A6009161FC /* Login */,
 				6375BD7F28ED8FBF00F640C8 /* Info.plist */,
@@ -143,6 +178,7 @@
 				6375BD8628EDA64900F640C8 /* GoogleService-Info.plist */,
 				639B025728F1B3BA009161FC /* UserProfile.swift */,
 				639B026B28F4A261009161FC /* Session.swift */,
+				634AFC412903DF2F00508FED /* FavoriteView.swift */,
 			);
 			path = weatherly;
 			sourceTree = "<group>";
@@ -158,6 +194,7 @@
 		639B026128F495A6009161FC /* Login */ = {
 			isa = PBXGroup;
 			children = (
+				6342C7292920275600C34A3C /* Signup */,
 				634AFC3328FC7E1D00508FED /* UserSetup */,
 				634AFC2B28FAE57400508FED /* SocialLogins */,
 				639B025528F1AF1D009161FC /* LoginScreen.swift */,
@@ -263,7 +300,10 @@
 			files = (
 				634AFC3028FAE82E00508FED /* LabelledDivider.swift in Sources */,
 				6375BD8328ED91F900F640C8 /* SearchView.swift in Sources */,
+				6342C72D292028FC00C34A3C /* SignupSocialButtons.swift in Sources */,
+				634AFC3C2902EBDF00508FED /* HourView.swift in Sources */,
 				639B026528F49966009161FC /* LoginButton.swift in Sources */,
+				634AFC3E2902EC3400508FED /* WeatherConditionCodes.swift in Sources */,
 				639B026328F49941009161FC /* LoginAlternative.swift in Sources */,
 				6375BD7428ED8F7100F640C8 /* ContentView.swift in Sources */,
 				634AFC2D28FAE58700508FED /* SocialLoginButton.swift in Sources */,
@@ -272,9 +312,13 @@
 				634AFC3528FC7E2A00508FED /* UserSetupView.swift in Sources */,
 				6375BD7228ED8F7100F640C8 /* weatherlyApp.swift in Sources */,
 				639B026C28F4A261009161FC /* Session.swift in Sources */,
+				634AFC402902F5D400508FED /* DayView.swift in Sources */,
 				634AFC3228FAE98400508FED /* LoginFields.swift in Sources */,
+				6342C72F2920293E00C34A3C /* SignupFields.swift in Sources */,
+				6342C72B2920276500C34A3C /* Signup.swift in Sources */,
 				6375BD8528ED959600F640C8 /* CityTile.swift in Sources */,
 				639B026728F49982009161FC /* LoginTitle.swift in Sources */,
+				634AFC422903DF2F00508FED /* FavoriteView.swift in Sources */,
 				639B025628F1AF1D009161FC /* LoginScreen.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

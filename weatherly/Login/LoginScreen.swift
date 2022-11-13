@@ -105,50 +105,12 @@ struct LoginScreen: View {
                 
             case .Signup:
                 VStack {
-                    LoginPageTitle(subtitle: "Sign up")
-                        .padding(.top, 40)
-                    
-                    if showMessage {
-                        HStack {
-                            Text(message)
-                                .padding(.horizontal, 20)
-                                .padding(.bottom, 20)
-                        }
-                    }
-                    
-                    TextField("E-Mail", text: $email)
-                        .padding()
-                        .background(.thickMaterial)
-                        .cornerRadius(5.0)
-                        .padding([ .horizontal, .bottom ], 20)
-                    SecureField("Password", text: $password)
-                        .padding()
-                        .background(.thickMaterial)
-                        .cornerRadius(5.0)
-                        .padding([ .horizontal ], 20)
-                    SecureField("Repeat password", text: $repeatedPassword)
-                        .padding()
-                        .background(.thickMaterial)
-                        .cornerRadius(5.0)
-                        .padding([ .horizontal ], 20)
-                    if showError {
-                        HStack {
-                            Text(errorMessage)
-                                .foregroundColor(.red)
-                                .padding(.horizontal, 20)
-                        }
-                    }
-                    
-                    LoginButton(buttonText: "Sign up", showProgressview: $showProgressview, buttonAction: signup)
-                    
-                    LoginAlternativ(text: "You have an account?", buttonText: "Sign in") {
+                    Signup(googleSignup: useGoogleSignIn, twitterSignup: useTwitterSignIn, showMessage: $showMessage, message: $message, email: $email, password: $password, repeatedPassword: $repeatedPassword, showError: $showError, errorMessage: $errorMessage, showProgressview: $showProgressview, signup: signup, viewControl:  {
                         showError = false
-                        showMessage = false
                         showProgressview = false
-                        viewControl = .Signin
-                    }
-                    
-                    Spacer()
+                        showMessage = false
+                        viewControl = .Signup
+                    })
                 }
                 
             case .ForgotPassword:
