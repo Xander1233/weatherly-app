@@ -10,7 +10,6 @@ import SwiftUI
 struct Signup: View {
     
     @State var googleSignup: () -> Void
-    @State var twitterSignup: () -> Void
     
     @Binding var showMessage: Bool
     @Binding var message: String
@@ -41,7 +40,7 @@ struct Signup: View {
             }
         }
         
-        SignupSocialButtons(googleSignup: googleSignup, twitterSignup: twitterSignup)
+        SignupSocialButtons(googleSignup: googleSignup)
         
         LabelledDivider(with: "or")
         
@@ -57,7 +56,7 @@ struct Signup: View {
         
         LoginButton(buttonText: "Sign up", showProgressview: $showProgressview, buttonAction: signup)
         
-        LoginAlternativ(text: "You have an account?", buttonText: "Sign in", action: viewControl)
+        LoginAlternativ(text: "Already have an account?", buttonText: "Sign in", action: viewControl)
         
         Spacer()
         

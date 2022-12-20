@@ -29,10 +29,11 @@ struct UserProfile: View {
     
     @State private var showProgressViewPassword = false
     
+    @State private var showSettings = false
+    
     var body: some View {
         NavigationView {
             VStack {
-                
                 
                 Form {
                     if user == nil {
@@ -48,6 +49,12 @@ struct UserProfile: View {
                                     .disabled(!showEdit)
                             }
                             
+                            /*HStack {
+                             DatePicker(selection: $birthdate, displayedComponents: .date) {
+                             Text("Birthday")
+                             }
+                             }*/
+                            
                             HStack {
                                 Text("E-Mail")
                                     .font(.callout)
@@ -55,13 +62,13 @@ struct UserProfile: View {
                                 Spacer()
                                 TextField("E-Mail", text: $email)
                                     .disabled(!showEdit)
-                                if Auth.auth().currentUser?.isEmailVerified == false {
+                                if Auth.auth().currentUser?.isEmailVerified == false && email != "N/A" {
                                     Image(systemName: "exclamationmark.triangle")
                                         .foregroundColor(.red)
                                 }
                             }
                             .onTapGesture {
-                                showEmailUnverifiedAlert = Auth.auth().currentUser?.isEmailVerified == false
+                                showEmailUnverifiedAlert = Auth.auth().currentUser?.isEmailVerified == false && email != "N/A"
                             }
                             .alert("This E-Mail is not verified", isPresented: $showEmailUnverifiedAlert) {
                                 Button(role: .cancel) {
@@ -153,7 +160,7 @@ struct UserProfile: View {
                                                             showPassword = false
                                                         }
                                                     }
-                            
+                                                    
                                                     
                                                 } label: {
                                                     if showProgressViewPassword {
@@ -174,22 +181,9 @@ struct UserProfile: View {
                         
                         Section {
                             Button {
-                                do {
-                                    if Auth.auth().currentUser == nil {
-                                        return
-                                    }
-                                    
-                                    if let _ = GIDSignIn.sharedInstance.currentUser {
-                                        GIDSignIn.sharedInstance.signOut()
-                                    }
-                                    
-                                    try Auth.auth().signOut()
-                                } catch {
-                                    print(error.localizedDescription)
-                                }
+                                showSettings = true
                             } label: {
-                                Text("Sign out")
-                                    .foregroundColor(.red)
+                                Text("Settings")
                             }
                         }
                     }
@@ -222,11 +216,32 @@ struct UserProfile: View {
                             showEdit = !showEdit
                         } label: {
                             Text(showEdit ? "Save" : "Edit")
-                                .animation(.easeInOut(duration: 0.2))
                         }
                     }
+                    
+                    if showEdit {
+                        
+                        ToolbarItemGroup(placement: .navigationBarLeading) {
+                            Button {
+                                
+                                if user == nil {
+                                    showEdit = false
+                                    return
+                                }
+                                
+                                displayName = user!.realName
+                                email = user!.email
+                                showEdit = false
+                            } label: {
+                                Text("Cancel")
+                            }
+                        }
+                        
+                    }
                 }
-
+                .sheet(isPresented: $showSettings) {
+                    Settings()
+                }
             }
             .navigationTitle("Profile")
         }
@@ -237,6 +252,21 @@ struct UserProfile: View {
                 
                 self.email = user!.email
                 self.displayName = user!.realName
+                
+                Functions.functions(region: "europe-west3")
+                    .httpsCallable("getUser")
+                    .call { (result, error) in
+                        
+                        if let error = error {
+                            print(error.localizedDescription)
+                            return
+                        }
+                        
+                        if let data = result?.data as? [String: Any] {
+                            print(data)
+                        }
+                        
+                    }
             }
         }
     }

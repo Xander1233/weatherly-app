@@ -48,29 +48,9 @@ struct LoginScreen: View {
                         }
                     }
                     
-                    SocialLoginButton(image: "google_logo", text: "Sign in with google")
-                    .background(.ultraThickMaterial)
-                    .padding(.horizontal)
-                    .onTapGesture {
-                        useGoogleSignIn()
-                    }
-                    
-                    SocialLoginButton(image: "twitter_logo", text: "Sign in with twitter")
-                        .background(.ultraThickMaterial)
-                        .padding(.horizontal)
-                        .onTapGesture {
-                            print("twitter")
-                            useTwitterSignIn()
-                        }
-                    
-                    /*SocialLoginButton(text: "Twitter", foregroundColor: .white, backgroundColor: twitterColor)
-                        .padding(.horizontal)
-                        .onTapGesture {
-                            useTwitterSignIn()
-                        }*/
+                    SocialLoginSigninButtons(useGoogleSignIn: useGoogleSignIn)
                     
                     LabelledDivider(with: "or")
-                    
                     
                     if showError {
                         HStack {
@@ -84,7 +64,7 @@ struct LoginScreen: View {
                     
                     LoginButton(buttonText: "Sign in", showProgressview: $showProgressview, buttonAction: signin)
                     
-                    LoginAlternativ(text: "Don't have an account yet?", buttonText: "Sign up") {
+                    LoginAlternativ(text: "New to Weatherly?", buttonText: "Create an account") {
                         showError = false
                         showProgressview = false
                         showMessage = false
@@ -105,11 +85,11 @@ struct LoginScreen: View {
                 
             case .Signup:
                 VStack {
-                    Signup(googleSignup: useGoogleSignIn, twitterSignup: useTwitterSignIn, showMessage: $showMessage, message: $message, email: $email, password: $password, repeatedPassword: $repeatedPassword, showError: $showError, errorMessage: $errorMessage, showProgressview: $showProgressview, signup: signup, viewControl:  {
+                    Signup(googleSignup: useGoogleSignIn, showMessage: $showMessage, message: $message, email: $email, password: $password, repeatedPassword: $repeatedPassword, showError: $showError, errorMessage: $errorMessage, showProgressview: $showProgressview, signup: signup, viewControl:  {
                         showError = false
                         showProgressview = false
                         showMessage = false
-                        viewControl = .Signup
+                        viewControl = .Signin
                     })
                 }
                 
@@ -231,7 +211,7 @@ struct LoginScreen: View {
             } else {
                 print("password reset sent")
                 viewControl = .Signin
-                message = "We sent you a reset link. Afterwards, sign in with your new password."
+                message = "We sent you a reset link via E-Mail if an account is associated with this E-Mail. Afterwards, sign in with your new password."
                 showMessage = true
                 showProgressview = false
             }
@@ -277,46 +257,6 @@ struct LoginScreen: View {
             } else {
                 showProgressview = false
                 isLoggedIn = true
-            }
-        }
-    }
-    
-    func useTwitterSignIn() {
-        print("test")
-        let provider = OAuthProvider(providerID: "twitter.com")
-        
-        
-        
-        provider.getCredentialWith(nil) { (credential, error) in
-            
-            print(credential, error)
-            
-            if let error = error {
-                print(error.localizedDescription)
-                return
-            }
-            
-            if let credential = credential {
-                Auth.auth().signIn(with: credential) { (result, error) in
-                    
-                    if let error = error {
-                        print(error.localizedDescription)
-                        return
-                    }
-                    
-                    switch result {
-                    case .none:
-                        errorMessage = "Something went wrong. Please try again."
-                        showError = true
-                        showProgressview = false
-                        return
-                    case .some(_):
-                        print("success")
-                        showProgressview = false
-                        isLoggedIn = true
-                    }
-                    
-                }
             }
         }
     }

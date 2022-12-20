@@ -22,14 +22,51 @@ struct CityView: View {
     
     @State var showAlert = false
     
+    var hours: [WeatherDataForecastDayHour] {
+        
+        if locData == nil {
+            return []
+        }
+        
+        var array = getTimesAfterCurrentTime(times: locData?.forecast.first?.hours ?? [])
+        
+        if array.count < 24 {
+            array = appendArray(array1: array, array2: getTimesBeforeCurrentTime(times: locData?.forecast[1].hours ?? []))
+        }
+            
+        return array
+    }
+    
     var body: some View {
         
         VStack {
-            
-            if locData != nil {
+            if errorMessage != "" {
+                Text("An error occured. That shouldn't have happened.")
+                Text("Error: \(errorMessage)")
+            } else if let locData = locData {
                 
                 VStack {
-                    
+                    List {
+                        
+                        Section {
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack {
+                                    ForEach(hours) { (hour) in
+                                        HourView(data: hour)
+                                            .padding(.horizontal, 2)
+                                    }
+                                }
+                            }
+                        }
+                        
+                        Section(header: Text("7-day Forecast")) {
+                            ForEach(locData.forecast) { (day) in
+                                DayView(data: day)
+                            }
+                        }
+                    }
+                }
+                .toolbar {
                     Button {
                         if isFavorite {
                             removeFromFavorites()
@@ -39,23 +76,6 @@ struct CityView: View {
                     } label: {
                         Image(systemName: isFavorite ? "star.fill" : "star")
                     }
-                    
-                    ScrollView {
-                        
-                        ScrollView(.horizontal) {
-                            HStack {
-                                // ForEach(locData!.forecast) { (day) in
-                                    ForEach(locData!.forecast.first!.hours) { (hour) in
-                                        HourView(data: hour)
-                                    }
-                                // }
-                            }
-                        }
-                        
-                        
-                        
-                    }
-                    
                 }
                 
             } else {
@@ -67,7 +87,7 @@ struct CityView: View {
             Alert(title: Text("Failed to add " + data.name + " to your favorites"))
         }
         .navigationTitle("\(data.name)")
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarTitleDisplayMode(.large)
         .onAppear {
             
             Functions.functions(region: "europe-west3")
@@ -95,8 +115,6 @@ struct CityView: View {
                     }
                     
                     if let resData = result?.data as? [String: Any] {
-                        
-                        print(resData)
                         
                         var forecastRes: [WeatherDataForecastDay] = []
                         
@@ -217,7 +235,6 @@ struct CityView: View {
                         }
                         
                         locData = WeatherDataCity(forecast: forecastRes)
-                        print(locData)
                     }
                     
                 }
@@ -261,6 +278,80 @@ struct CityView: View {
             }
         
     }
+    
+    func getTimesBeforeCurrentTime(times: [WeatherDataForecastDayHour]) -> [WeatherDataForecastDayHour] {
+        // Get the current time
+        let now = Date()
+        // Create a date formatter
+        let formatter = DateFormatter()
+        // Set the date format
+        formatter.dateFormat = "HH:00"
+        // Get the current time as a string
+        let nowString = formatter.string(from: now)
+        
+        // Create an array to hold the times after the current time
+        var timesAfterCurrentTime = [WeatherDataForecastDayHour]()
+        // Loop through the times
+        for time in times {
+            
+            let compareTo = time.time.split(separator: " ")[1]
+            
+            // If the time is after the current time
+            if compareTo < nowString {
+                
+                // Add the time to the array
+                timesAfterCurrentTime.append(time)
+            }
+        }
+        // Return the array of times after the current time
+        return timesAfterCurrentTime
+    }
+    
+    func getTimesAfterCurrentTime(times: [WeatherDataForecastDayHour]) -> [WeatherDataForecastDayHour] {
+        // Get the current time
+        let now = Date()
+        // Create a date formatter
+        let formatter = DateFormatter()
+        // Set the date format
+        formatter.dateFormat = "HH:00"
+        // Get the current time as a string
+        let nowString = formatter.string(from: now)
+        
+        // Create an array to hold the times after the current time
+        var timesAfterCurrentTime = [WeatherDataForecastDayHour]()
+        // Loop through the times
+        for time in times {
+            
+            let compareTo = time.time.split(separator: " ")[1]
+            
+            // If the time is after the current time
+            if compareTo >= nowString {
+                
+                // Add the time to the array
+                timesAfterCurrentTime.append(time)
+            }
+        }
+        // Return the array of times after the current time
+        return timesAfterCurrentTime
+    }
+    
+    func appendArray(array1: [WeatherDataForecastDayHour], array2: [WeatherDataForecastDayHour]) -> [WeatherDataForecastDayHour] {
+        // Create a new array
+        var newArray = [WeatherDataForecastDayHour]()
+        // Loop through the first array
+        for item in array1 {
+            // Add the item to the new array
+            newArray.append(item)
+        }
+        // Loop through the second array
+        for item in array2 {
+            // Add the item to the new array
+            newArray.append(item)
+        }
+        // Return the new array
+        return newArray
+    }
+
 }
 
 

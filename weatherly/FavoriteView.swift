@@ -18,12 +18,17 @@ struct FavoriteView: View {
     
     @State var failed = false
     
+    @State var isCurrentLocation = false
+    
     var body: some View {
         
         VStack {
             
             VStack {
                 HStack {
+                    if isCurrentLocation {
+                        Image(systemName: "location")
+                    }
                     Text("\(data.name)")
                     Spacer()
                 }
@@ -86,8 +91,6 @@ struct FavoriteView: View {
                             
                             locData = WeatherDataCity(current: WeatherDataCurrent(temp_c: tempC, condition: WeatherDataCondition(text: conditionText, code: conditionCode), wind_kph: 0.0, wind_degree: 1, vis_km: 0.0, uv: 0.0, precip_mm: 0.0))
                         }
-                        
-                        print(locData?.current)
                     }
                     
                 }
