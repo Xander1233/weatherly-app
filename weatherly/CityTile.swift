@@ -7,10 +7,11 @@
 
 import SwiftUI
 import FirebaseAuth
-import FirebaseFirestore
 import FirebaseFunctions
 
 struct CityView: View {
+    
+    @Environment(\.scenePhase) var scenePhase
     
     @State var data: City
     
@@ -22,7 +23,13 @@ struct CityView: View {
     
     @State var showAlert = false
     
-    var hours: [WeatherDataForecastDayHour] {
+    var setSelected: () -> Void = {
+        
+    }
+    
+    @State var isDeepLinked = false
+    
+    var hours: [HourOrAstro] {
         
         if locData == nil {
             return []
@@ -30,11 +37,13 @@ struct CityView: View {
         
         var array = getTimesAfterCurrentTime(times: locData?.forecast.first?.hours ?? [])
         
-        if array.count < 24 {
-            array = appendArray(array1: array, array2: getTimesBeforeCurrentTime(times: locData?.forecast[1].hours ?? []))
-        }
-            
-        return array
+        let hasSunriseAlreadyOccured = !isHourBetweenNow(timeString: String(locData?.forecast.first?.astro.sunrise ?? "00:00 AM"))
+        
+        let hasSunsetAlreadyOccured = isHourBetweenNow(timeString: String(locData?.forecast.first?.astro.sunset ?? "00:00 AM"))
+        
+        let newArray: [HourOrAstro] = appendArray(array1: array, array2: getTimesBeforeCurrentTime(times: locData?.forecast[1].hours ?? []), astro: WeatherDataForecastDayAstro(sunrise: hasSunriseAlreadyOccured ? locData?.forecast[1].astro.sunrise ?? "00:01" : locData?.forecast.first?.astro.sunrise ?? "00:01", sunset: hasSunsetAlreadyOccured ? locData?.forecast[1].astro.sunset ?? "00:02" : locData?.forecast.first?.astro.sunset ?? "00:02"))
+        
+        return newArray
     }
     
     var body: some View {
@@ -51,9 +60,17 @@ struct CityView: View {
                         Section {
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack {
-                                    ForEach(hours) { (hour) in
-                                        HourView(data: hour)
-                                            .padding(.horizontal, 2)
+                                    ForEach(hours) { (astroOrHour) in
+                                        
+                                        if let hour = astroOrHour.hour {
+                                            HourView(data: hour)
+                                                .padding(.horizontal, 2)
+                                        }
+                                        
+                                        if let astro = astroOrHour.astro {
+                                            AstroView(data: astro)
+                                                .padding(.horizontal, 2)
+                                        }
                                     }
                                 }
                             }
@@ -65,8 +82,21 @@ struct CityView: View {
                             }
                         }
                     }
+                    .refreshable {
+                        fetch()
+                    }
                 }
-                .toolbar {
+            } else {
+                ProgressView()
+                Text("Fetching Data")
+            }
+        }
+        .alert(isPresented: $showAlert) {
+            Alert(title: Text("Failed to add " + data.name + " to your favorites"))
+        }
+        .toolbar {
+            if locData != nil {
+                ToolbarItemGroup(placement: .navigationBarTrailing) {
                     Button {
                         if isFavorite {
                             removeFromFavorites()
@@ -77,170 +107,209 @@ struct CityView: View {
                         Image(systemName: isFavorite ? "star.fill" : "star")
                     }
                 }
-                
-            } else {
-                ProgressView()
-                Text("Fetching Data")
             }
-        }
-        .alert(isPresented: $showAlert) {
-            Alert(title: Text("Failed to add " + data.name + " to your favorites"))
+            
         }
         .navigationTitle("\(data.name)")
         .navigationBarTitleDisplayMode(.large)
         .onAppear {
+            fetch()
+        }
+        .onChange(of: scenePhase) { (newValue) in
             
-            Functions.functions(region: "europe-west3")
-                .httpsCallable("isFavorite")
-                .call(["name": data.name, "region": data.region, "country": data.country]) { (result, error) in
-                    
-                    if let error = error {
-                        errorMessage = error.localizedDescription
-                        return
-                    }
-                    
-                    if let res = result?.data as? [String:Any] {
-                        isFavorite = (res["isFavorite"] as? Bool) ?? false
-                    }
-                    
-                }
-            
-            Functions.functions(region: "europe-west3")
-                .httpsCallable("getLocation")
-                .call(["location": data.name]) { (result, error) in
-                    
-                    if let error = error {
-                        errorMessage = error.localizedDescription
-                        return
-                    }
-                    
-                    if let resData = result?.data as? [String: Any] {
-                        
-                        var forecastRes: [WeatherDataForecastDay] = []
-                        
-                        if let forecastOuter = resData["forecast"] as? [String: Any], let forecastInnerOuter = forecastOuter["forecast"] as? [String: Any], let forecast = forecastInnerOuter["forecastday"] as? [Any] {
-                            
-                            for i in 0..<forecast.count {
-                                
-                                let entry = forecast[i] as! [String: Any]
-                                
-                                var date: String = ""
-                                var day_maxtemp: Double = 0.0
-                                var day_mintemp: Double = 0.0
-                                var day_chanceRain: Int = 0
-                                var day_chanceSnow: Int = 0
-                                var day_condition_text: String = ""
-                                var day_condition_code: Int = 0
-                                var hours: [WeatherDataForecastDayHour] = []
-                                
-                                if let resDate = entry["date"] as? String {
-                                    date = resDate
-                                }
-                                
-                                if let resDayData = entry["day"] as? [String: Any] {
-                                    
-                                    if let resDayMaxTemp = resDayData["maxtemp_c"] as? Double {
-                                        day_maxtemp = resDayMaxTemp
-                                    }
-                                    
-                                    if let resDayMinTemp = resDayData["mintemp_c"] as? Double {
-                                        day_mintemp = resDayMinTemp
-                                    }
-                                    
-                                    if let resDayChanceRain = resDayData["daily_chance_of_rain"] as? Int {
-                                        day_chanceRain = resDayChanceRain
-                                    }
-                                    
-                                    if let resDayChanceSnow = resDayData["daily_chance_of_snow"] as? Int {
-                                        day_chanceSnow = resDayChanceSnow
-                                    }
-                                    
-                                    if let resDayCondition = resDayData["condition"] as? [String: Any] {
-                                        if let resDayConditionText = resDayCondition["text"] as? String {
-                                            day_condition_text = resDayConditionText
-                                        }
-                                        
-                                        if let resDayConditionCode = resDayCondition["code"] as? Int {
-                                            day_condition_code = resDayConditionCode
-                                        }
-                                    }
-                                }
-                                
-                                
-                                if let entryHours = entry["hour"] as? [Any] {
-                                    for j in 0..<entryHours.count {
-                                        
-                                        let hourData = entryHours[j] as! [String: Any]
-                                        
-                                        var hourTime: String = ""
-                                        var hourTemp: Double = 0.0
-                                        var hourConditionText: String = ""
-                                        var hourConditionCode: Int = 0
-                                        var hourWindKph: Double = 0.0
-                                        var hourWindDegree: Int = 0
-                                        var hourPrecip: Double = 0.0
-                                        var hourChanceOfRain: Int = 0
-                                        var hourChanceOfSnow: Int = 0
-                                        var hourVis: Double = 0.0
-                                        
-                                        if let resTime = hourData["time"] as? String {
-                                            hourTime = resTime
-                                        }
-                                        
-                                        if let resTemp = hourData["temp_c"] as? Double {
-                                            hourTemp = resTemp
-                                        }
-                                        
-                                        if let resHourCond = hourData["condition"] as? [String: Any] {
-                                            if let resHourCondText = resHourCond["text"] as? String {
-                                                hourConditionText = resHourCondText
-                                            }
-                                            
-                                            if let resHourCondCode = resHourCond["code"] as? Int {
-                                                hourConditionCode = resHourCondCode
-                                            }
-                                        }
-                                        
-                                        if let windKph = hourData["wind_kph"] as? Double {
-                                            hourWindKph = windKph
-                                        }
-                                        
-                                        if let windDeg = hourData["wind_degree"] as? Int {
-                                            hourWindDegree = windDeg
-                                        }
-                                        
-                                        if let precip = hourData["precip_mm"] as? Double {
-                                            hourPrecip = precip
-                                        }
-                                        
-                                        if let chanceRain = hourData["chance_of_rain"] as? Int {
-                                            hourChanceOfRain = chanceRain
-                                        }
-                                        
-                                        if let chanceSnow = hourData["chance_of_snow"] as? Int {
-                                            hourChanceOfSnow = chanceSnow
-                                        }
-                                        
-                                        if let vis = hourData["vis_km"] as? Double {
-                                            hourVis = vis
-                                        }
-                                        
-                                        hours.append(WeatherDataForecastDayHour(time: hourTime, temp_c: hourTemp, condition: WeatherDataCondition(text: hourConditionText, code: hourConditionCode), wind_kph: hourWindKph, wind_degree: hourWindDegree, precip_mm: hourPrecip, chanceOfRain: hourChanceOfRain, chanceOfSnow: hourChanceOfSnow, vis_km: hourVis))
-                                    }
-                                }
-                                
-                                forecastRes.append(WeatherDataForecastDay(date: date, maxtemp_c: day_maxtemp, mintemp_c: day_mintemp, chanceOfRain: day_chanceRain, chanceOfSnow: day_chanceSnow, condition: WeatherDataCondition(text: day_condition_text, code: day_condition_code), hours: hours))
-                            }
-                            
-                        }
-                        
-                        locData = WeatherDataCity(forecast: forecastRes)
-                    }
-                    
-                }
+            if newValue == .active {
+                fetch()
+            }
             
         }
         
+    }
+    
+    func isHourBetweenNow(timeString: String) -> Bool {
+        
+        let timeAndAMPM = timeString.components(separatedBy: " ")
+        
+        let isAM = timeAndAMPM[1].uppercased() == "AM"
+        
+        let time = timeAndAMPM[0]
+        
+        let now = Date()
+        let calendar = Calendar.current
+        let hourComponents = time.components(separatedBy: ":")
+        let hour = Int(hourComponents[0])! + (isAM ? 0 : 12)
+        let minute = Int(hourComponents[1])!
+        let hourDate = calendar.date(bySettingHour: hour, minute: minute, second: 0, of: .now)!
+        
+        let test = calendar.date(bySettingHour: 14, minute: 20, second: 0, of: .now)!
+        
+        return hourDate > now
+    }
+    
+    private func fetch() {
+        setSelected()
+        
+        Functions.functions(region: "europe-west3")
+            .httpsCallable("isFavorite")
+            .call(["name": data.name, "region": data.region, "country": data.country]) { (result, error) in
+                
+                if let error = error {
+                    errorMessage = error.localizedDescription
+                    return
+                }
+                
+                if let res = result?.data as? [String:Any] {
+                    isFavorite = (res["isFavorite"] as? Bool) ?? false
+                }
+                
+            }
+        
+        Functions.functions(region: "europe-west3")
+            .httpsCallable("getLocation")
+            .call(["location": data.name]) { (result, error) in
+                
+                if let error = error {
+                    errorMessage = error.localizedDescription
+                    return
+                }
+                
+                if let resData = result?.data as? [String: Any] {
+                    
+                    var forecastRes: [WeatherDataForecastDay] = []
+                    
+                    if let forecastOuter = resData["forecast"] as? [String: Any], let forecastInnerOuter = forecastOuter["forecast"] as? [String: Any], let forecast = forecastInnerOuter["forecastday"] as? [Any] {
+                        
+                        for i in 0..<forecast.count {
+                            
+                            let entry = forecast[i] as! [String: Any]
+                            
+                            var date: String = ""
+                            var day_maxtemp: Double = 0.0
+                            var day_mintemp: Double = 0.0
+                            var day_chanceRain: Int = 0
+                            var day_chanceSnow: Int = 0
+                            var day_condition_text: String = ""
+                            var day_condition_code: Int = 0
+                            var hours: [WeatherDataForecastDayHour] = []
+                            
+                            var astro: WeatherDataForecastDayAstro = WeatherDataForecastDayAstro(sunrise: "", sunset: "")
+                            
+                            if let resDayAstro = entry["astro"] as? [String: Any] {
+                                var sunrise: String = ""
+                                if let astroSunrise = resDayAstro["sunrise"] as? String {
+                                    sunrise = astroSunrise
+                                }
+                                var sunset: String = ""
+                                if let astroSunset = resDayAstro["sunset"] as? String {
+                                    sunset = astroSunset
+                                }
+                                astro = WeatherDataForecastDayAstro(sunrise: sunrise, sunset: sunset)
+                            }
+                            
+                            if let resDate = entry["date"] as? String {
+                                date = resDate
+                            }
+                            
+                            if let resDayData = entry["day"] as? [String: Any] {
+                                
+                                if let resDayMaxTemp = resDayData["maxtemp_c"] as? Double {
+                                    day_maxtemp = resDayMaxTemp
+                                }
+                                
+                                if let resDayMinTemp = resDayData["mintemp_c"] as? Double {
+                                    day_mintemp = resDayMinTemp
+                                }
+                                
+                                if let resDayChanceRain = resDayData["daily_chance_of_rain"] as? Int {
+                                    day_chanceRain = resDayChanceRain
+                                }
+                                
+                                if let resDayChanceSnow = resDayData["daily_chance_of_snow"] as? Int {
+                                    day_chanceSnow = resDayChanceSnow
+                                }
+                                
+                                if let resDayCondition = resDayData["condition"] as? [String: Any] {
+                                    if let resDayConditionText = resDayCondition["text"] as? String {
+                                        day_condition_text = resDayConditionText
+                                    }
+                                    
+                                    if let resDayConditionCode = resDayCondition["code"] as? Int {
+                                        day_condition_code = resDayConditionCode
+                                    }
+                                }
+                            }
+                            
+                            
+                            if let entryHours = entry["hour"] as? [Any] {
+                                for j in 0..<entryHours.count {
+                                    
+                                    let hourData = entryHours[j] as! [String: Any]
+                                    
+                                    var hourTime: String = ""
+                                    var hourTemp: Double = 0.0
+                                    var hourConditionText: String = ""
+                                    var hourConditionCode: Int = 0
+                                    var hourWindKph: Double = 0.0
+                                    var hourWindDegree: Int = 0
+                                    var hourPrecip: Double = 0.0
+                                    var hourChanceOfRain: Int = 0
+                                    var hourChanceOfSnow: Int = 0
+                                    var hourVis: Double = 0.0
+                                    
+                                    if let resTime = hourData["time"] as? String {
+                                        hourTime = resTime
+                                    }
+                                    
+                                    if let resTemp = hourData["temp_c"] as? Double {
+                                        hourTemp = resTemp
+                                    }
+                                    
+                                    if let resHourCond = hourData["condition"] as? [String: Any] {
+                                        if let resHourCondText = resHourCond["text"] as? String {
+                                            hourConditionText = resHourCondText
+                                        }
+                                        
+                                        if let resHourCondCode = resHourCond["code"] as? Int {
+                                            hourConditionCode = resHourCondCode
+                                        }
+                                    }
+                                    
+                                    if let windKph = hourData["wind_kph"] as? Double {
+                                        hourWindKph = windKph
+                                    }
+                                    
+                                    if let windDeg = hourData["wind_degree"] as? Int {
+                                        hourWindDegree = windDeg
+                                    }
+                                    
+                                    if let precip = hourData["precip_mm"] as? Double {
+                                        hourPrecip = precip
+                                    }
+                                    
+                                    if let chanceRain = hourData["chance_of_rain"] as? Int {
+                                        hourChanceOfRain = chanceRain
+                                    }
+                                    
+                                    if let chanceSnow = hourData["chance_of_snow"] as? Int {
+                                        hourChanceOfSnow = chanceSnow
+                                    }
+                                    
+                                    if let vis = hourData["vis_km"] as? Double {
+                                        hourVis = vis
+                                    }
+                                    
+                                    hours.append(WeatherDataForecastDayHour(time: hourTime, temp_c: hourTemp, condition: WeatherDataCondition(text: hourConditionText, code: hourConditionCode), wind_kph: hourWindKph, wind_degree: hourWindDegree, precip_mm: hourPrecip, chanceOfRain: hourChanceOfRain, chanceOfSnow: hourChanceOfSnow, vis_km: hourVis))
+                                }
+                            }
+                            
+                            forecastRes.append(WeatherDataForecastDay(date: date, maxtemp_c: day_maxtemp, mintemp_c: day_mintemp, chanceOfRain: day_chanceRain, chanceOfSnow: day_chanceSnow, condition: WeatherDataCondition(text: day_condition_text, code: day_condition_code), hours: hours, astro: astro))
+                        }
+                        
+                    }
+                    
+                    locData = WeatherDataCity(forecast: forecastRes)
+                }
+                
+            }
     }
     
     private func addToFavorites() {
@@ -335,19 +404,92 @@ struct CityView: View {
         return timesAfterCurrentTime
     }
     
-    func appendArray(array1: [WeatherDataForecastDayHour], array2: [WeatherDataForecastDayHour]) -> [WeatherDataForecastDayHour] {
+    func getAstroIndices(sunrise: String, sunset: String, array: [HourOrAstro]) -> [String: Any] {
+        
+        let hours = array.filter {
+            return $0.hour != nil
+        }.map { $0.hour }
+        
+        let sunriseSplitted = sunrise.split(separator: ":")
+        let sunriseIsPM = sunrise.split(separator: " ")[1] == "PM"
+        let sunriseHours = Int(sunriseSplitted[0]) ?? 0
+        var sunriseHoursString = "\(sunriseIsPM ? sunriseHours + 12 : sunriseHours)"
+        if sunriseHoursString.count == 1 {
+            sunriseHoursString = "0\(sunriseHoursString)"
+        }
+        let sunriseTime = "\(sunriseHoursString):00"
+        
+        var sunriseIndex = 0
+        
+        for (index, hour) in hours.enumerated() {
+            if hour!.time.split(separator: " ")[1] == sunriseTime {
+                sunriseIndex = index
+            }
+        }
+        
+        let sunsetSplitted = sunset.split(separator: ":")
+        let sunsetIsPM = sunset.split(separator: " ")[1] == "PM"
+        let sunsetHours = Int(sunsetSplitted[0]) ?? 0
+        var sunsetHoursString = "\(sunsetIsPM ? sunsetHours + 12 : sunsetHours)"
+        if sunsetHoursString.count == 1 {
+            sunsetHoursString = "0\(sunsetHoursString)"
+        }
+        let sunsetTime = "\(sunsetHoursString):00"
+        
+        var sunsetIndex = 0
+        
+        for (index, hour) in hours.enumerated() {
+            if hour!.time.split(separator: " ")[1] == sunsetTime {
+                sunsetIndex = index
+            }
+        }
+        
+        return [
+            "sunrise": sunriseIndex > sunsetIndex ? sunriseIndex + 1 : sunriseIndex,
+            "sunset": sunsetIndex > sunriseIndex ? sunsetIndex + 1 : sunsetIndex,
+            "sunsetTime": "\(sunsetHoursString):\(sunsetSplitted[1].split(separator: " ")[0])",
+            "sunriseTime": "\(sunriseHoursString):\(sunriseSplitted[1].split(separator: " ")[0])"
+        ]
+    }
+    
+    func appendArray(array1: [WeatherDataForecastDayHour], array2: [WeatherDataForecastDayHour], astro: WeatherDataForecastDayAstro) -> [HourOrAstro] {
+        
         // Create a new array
-        var newArray = [WeatherDataForecastDayHour]()
+        var newArray = [HourOrAstro]()
         // Loop through the first array
         for item in array1 {
             // Add the item to the new array
-            newArray.append(item)
+            newArray.append(HourOrAstro(hour: item))
         }
         // Loop through the second array
         for item in array2 {
             // Add the item to the new array
-            newArray.append(item)
+            newArray.append(HourOrAstro(hour: item))
         }
+        
+        let astroIndices = getAstroIndices(sunrise: astro.sunrise, sunset: astro.sunset, array: newArray)
+        
+        let sunrise = astroIndices["sunrise"] ?? 0
+        let sunset = astroIndices["sunset"] ?? 0
+        
+        let sunriseTime = astroIndices["sunriseTime"]
+        let sunsetTime = astroIndices["sunsetTime"]
+        
+        let sunriseIndex = (sunrise as! Int) + 1
+        let sunsetIndex = (sunset as! Int) + 1
+        
+        if sunriseIndex >= newArray.count {
+            newArray.append(HourOrAstro(astro: SunriseOrSunset(hour: sunriseTime as! String, isSunrise: true)))
+        } else {
+            newArray.insert(HourOrAstro(astro: SunriseOrSunset(hour: sunriseTime as! String, isSunrise: true)), at: sunriseIndex)
+        }
+        
+        if sunsetIndex >= newArray.count {
+            newArray.append(HourOrAstro(astro: SunriseOrSunset(hour: sunsetTime as! String, isSunrise: false)))
+        } else {
+            newArray.insert(HourOrAstro(astro: SunriseOrSunset(hour: sunsetTime as! String, isSunrise: false)), at: sunsetIndex)
+        }
+        
         // Return the new array
         return newArray
     }
@@ -381,6 +523,7 @@ struct WeatherDataForecastDay: Identifiable {
     let chanceOfSnow: Int
     let condition: WeatherDataCondition
     let hours: [WeatherDataForecastDayHour]
+    let astro: WeatherDataForecastDayAstro
 }
 
 struct WeatherDataForecastDayHour: Identifiable {
@@ -411,4 +554,31 @@ struct WeatherDataAlerts {
     let expires: String
     let description: String
     let instruction: String
+}
+
+struct WeatherDataForecastDayAstro {
+    let sunrise: String
+    let sunset: String
+}
+
+
+struct HourOrAstro: Identifiable {
+    
+    let id = UUID()
+    
+    init(hour: WeatherDataForecastDayHour) {
+        self.hour = hour
+    }
+    
+    init(astro: SunriseOrSunset) {
+        self.astro = astro
+    }
+    
+    var hour: WeatherDataForecastDayHour? = nil
+    var astro: SunriseOrSunset? = nil
+}
+
+struct SunriseOrSunset {
+    let hour: String
+    let isSunrise: Bool
 }

@@ -11,6 +11,10 @@ import FirebaseAuth
 
 struct HomeView: View {
     
+    @Environment(\.scenePhase) var scenePhase
+    
+    @State var fetchedFavorites = false
+    
     @State var favorites: [City] = []
     
     @State var name = "David"
@@ -39,20 +43,23 @@ struct HomeView: View {
             List {
                 if let currentLocation = currentLocation {
                     Section {
+                        HStack {
+                            Image(systemName: "location.fill")
+                            Text("Current location")
+                        }
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                        .frame(height: 20)
+                        
                         NavigationLink {
                             CityView(data: currentLocation)
                         } label: {
                             FavoriteView(data: currentLocation, isCurrentLocation: true)
                         }
-                    } header: {
-                        HStack {
-                            Image(systemName: "location")
-                            Text("Current location")
-                        }
                     }
                 }
                 
-                if favorites.count == 0 {
+                if favorites.count == 0 && fetchedFavorites {
                     Section {
                         VStack {
                             HStack {
@@ -63,6 +70,14 @@ struct HomeView: View {
                         }
                     }
                 } else {
+                    
+                    HStack {
+                        Image(systemName: "star.fill")
+                        Text("Your favorites")
+                    }
+                    .font(.caption)
+                    .foregroundColor(.gray)
+                    
                     ForEach(favorites) { favorite in
                         NavigationLink {
                             CityView(data: favorite)
@@ -120,13 +135,17 @@ struct HomeView: View {
                     }
                 }
             }
-            .navigationTitle("Favorites")
+            .refreshable {
+                getCurrentLocation()
+                getFavorites()
+            }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 if favorites.count > 0 {
                     EditButton()
                 }
             }
+            .navigationTitle("Favorites")
         }
         .onAppear {
             getCurrentLocation()
@@ -138,11 +157,12 @@ struct HomeView: View {
         .onChange(of: userLongitude) { (newValue) in
             getCurrentLocation()
         }
+        .onChange(of: scenePhase) { (newValue) in
+            print(newValue)
+        }
     }
     
     func getCurrentLocation() {
-        
-        print(userLatitude, userLongitude)
         
         if userLatitude == nil || userLongitude == nil {
             return
@@ -191,6 +211,7 @@ struct HomeView: View {
         
         if uid == nil {
             favorites = []
+            fetchedFavorites = true
             return
         }
         
@@ -201,6 +222,7 @@ struct HomeView: View {
                 
                 if error != nil {
                     print(error!.localizedDescription)
+                    fetchedFavorites = true
                     return
                 }
                 
@@ -230,6 +252,8 @@ struct HomeView: View {
                         
                         favorites.append(City(name: name, country: country, region: region))
                     }
+                    
+                    fetchedFavorites = true
                     
                 }
             }

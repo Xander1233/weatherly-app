@@ -48,7 +48,9 @@ struct LoginScreen: View {
                         }
                     }
                     
-                    SocialLoginSigninButtons(useGoogleSignIn: useGoogleSignIn)
+                    SocialLoginSigninButtons(useGoogleSignIn: useGoogleSignIn) {
+                        AppleSignIn().useAppleSignIn()
+                    }
                     
                     LabelledDivider(with: "or")
                     
@@ -139,7 +141,6 @@ struct LoginScreen: View {
                     Spacer()
                 }
             }
-            
         }
     }
     

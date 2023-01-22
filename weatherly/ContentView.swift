@@ -46,6 +46,15 @@ struct ContentView: View {
                             Text("Search")
                         }
                     }
+                
+                PurchaseScreen()
+                    .tabItem {
+                        VStack {
+                            Image(systemName: "questionmark")
+                            Text("Weatherly+")
+                        }
+                    }
+                
                 UserProfile()
                     .tabItem {
                         VStack {
