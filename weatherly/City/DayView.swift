@@ -23,7 +23,6 @@ struct DayView: View {
     var body: some View {
         Button {
             showSheet = true
-            print(data.hours[0].time)
         } label: {
             HStack {
                 
@@ -47,12 +46,14 @@ struct DayView: View {
         }
         .sheet(isPresented: $showSheet) {
             NavigationView {
-                ChartView(hours: data.hours)
-                    .padding(.horizontal)
-                    .frame(height: 300)
-                    .navigationTitle("Temperature")
+                VStack {
+                    ChartView(hours: data.hours)
+                        .padding(.horizontal)
+                        .navigationTitle("Temperature for \(getDate)")
+                        .navigationBarTitleDisplayMode(.inline)
+                    Spacer()
+                }
             }
-            .navigationBarTitleDisplayMode(.inline)
         }
     }
 }
