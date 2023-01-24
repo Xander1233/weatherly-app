@@ -11,13 +11,14 @@ import Charts
 struct DayView: View {
     
     @State var data: WeatherDataForecastDay
+    @State var city: City
     
     @State var showSheet = false
     
     var getDate: String {
         let dateSplitted = data.date.split(separator: "-")
         
-        return "\(dateSplitted[2]).\(dateSplitted[1])"
+        return "\(dateSplitted[2]).\(dateSplitted[1])."
     }
     
     var body: some View {
@@ -47,12 +48,18 @@ struct DayView: View {
         .sheet(isPresented: $showSheet) {
             NavigationView {
                 VStack {
-                    ChartView(hours: data.hours)
-                        .padding(.horizontal)
-                        .navigationTitle("Temperature for \(getDate)")
-                        .navigationBarTitleDisplayMode(.inline)
+                    ChartView(hours: data.hours, max: data.maxtemp_c, min: data.mintemp_c, day: getDate, city: city.name)
                     Spacer()
                 }
+                .toolbar {
+                    Button {
+                        showSheet = false
+                    } label: {
+                        Text("Done")
+                    }
+                }
+                .navigationTitle("Details")
+                .navigationBarTitleDisplayMode(.inline)
             }
         }
     }

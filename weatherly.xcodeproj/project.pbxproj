@@ -63,6 +63,7 @@
 		63B0736A2977BAC0005E9118 /* IAPIDs.plist in Resources */ = {isa = PBXBuildFile; fileRef = 63B073692977BAC0005E9118 /* IAPIDs.plist */; };
 		63B0736C2977BAFD005E9118 /* IAPManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B0736B2977BAFD005E9118 /* IAPManager.swift */; };
 		63B0736E297D411B005E9118 /* ChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B0736D297D411B005E9118 /* ChartView.swift */; };
+		63B0737029802D6E005E9118 /* UniversalChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B0736F29802D6E005E9118 /* UniversalChart.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -140,6 +141,7 @@
 		63B073692977BAC0005E9118 /* IAPIDs.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = IAPIDs.plist; sourceTree = "<group>"; };
 		63B0736B2977BAFD005E9118 /* IAPManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPManager.swift; sourceTree = "<group>"; };
 		63B0736D297D411B005E9118 /* ChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartView.swift; sourceTree = "<group>"; };
+		63B0736F29802D6E005E9118 /* UniversalChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversalChart.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -275,6 +277,7 @@
 				634AFC3F2902F5D400508FED /* DayView.swift */,
 				6342C73B2957831700C34A3C /* AstroView.swift */,
 				63B0736D297D411B005E9118 /* ChartView.swift */,
+				63B0736F29802D6E005E9118 /* UniversalChart.swift */,
 			);
 			path = City;
 			sourceTree = "<group>";
@@ -498,6 +501,7 @@
 				634AFC2D28FAE58700508FED /* SocialLoginButton.swift in Sources */,
 				639B025828F1B3BC009161FC /* UserProfile.swift in Sources */,
 				6342C7372937836800C34A3C /* Reauthentication.swift in Sources */,
+				63B0737029802D6E005E9118 /* UniversalChart.swift in Sources */,
 				6342C73A294F7B6800C34A3C /* LocationManager.swift in Sources */,
 				6375BD8128ED914C00F640C8 /* HomePage.swift in Sources */,
 				63B073682975185D005E9118 /* PurchaseScreen.swift in Sources */,

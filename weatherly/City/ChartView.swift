@@ -12,100 +12,258 @@ struct ChartView: View {
     
     @State var hours: [WeatherDataForecastDayHour]
     
-    var getEverySecondHour: [WeatherDataForecastDayHour] {
-        var arr: [WeatherDataForecastDayHour] = []
-        
-        for i in 0..<hours.count {
-            if i % 2 == 0 {
-                arr.append(hours[i])
-            }
+    @State var max: Double
+    @State var min: Double
+    
+    @State var day: String
+    
+    @State var city: String
+    
+    @State private var currentChart: ChartOptions = .temperature
+    
+    var getTempMap: [DataEntry] {
+        return hours.map {
+            return DataEntry(label: $0.time, data: $0.temp_c)
         }
-        
-        return arr
     }
     
-    var getYMin: Double {
-        let map = getEverySecondHour.map { hour in
-            return hour.temp_c
-        }.sorted()
-        
-        let minVal = map[0]
-        
-        return floor(minVal)
+    var getPrecipMap: [DataEntry] {
+        return hours.map {
+            return DataEntry(label: $0.time, data: $0.precip_mm)
+        }
     }
     
-    var getYMax: Double {
-        let map = getEverySecondHour.map { hour in
-            return hour.temp_c
-        }.sorted()
-        let maxVal = map.reversed()[0]
-        return ceil(maxVal + 4)
+    var getVisMap: [DataEntry] {
+        return hours.map {
+            return DataEntry(label: $0.time, data: $0.vis_km)
+        }
     }
     
-    var getYDomain: ClosedRange<Double> {
-        return getYMin...getYMax
+    var getWindMap: [DataEntry] {
+        return hours.map {
+            return DataEntry(label: $0.time, data: $0.wind_kph)
+        }
+    }
+    
+    var getChanceOfRainMap: [DataEntry] {
+        return hours.map {
+            return DataEntry(label: $0.time, data: Double($0.chanceOfRain))
+        }
+    }
+    
+    var getChanceOfSnowMap: [DataEntry] {
+        return hours.map {
+            return DataEntry(label: $0.time, data: Double($0.chanceOfSnow))
+        }
     }
     
     var body: some View {
         
-        let color = Color(hue: 0.69, saturation: 0.19, brightness: 0.79)
-        let gradient = LinearGradient(gradient: Gradient(colors: [
-            color.opacity(0.5),
-            color.opacity(0.2),
-            color.opacity(0.05)
-        ]), startPoint: .top, endPoint: .bottom)
-        
         VStack {
-            Chart {
-                ForEach(getEverySecondHour) { (hour) in
-                    LineMark(x: .value("Hour", parseTime(from: hour.time)), y: .value("Temperature", roundTo2ndDecimalPlace(number: hour.temp_c)))
-                        .interpolationMethod(.cardinal)
-                        .symbol(by: .value("Day", "current"))
-                        .symbolSize(30)
-                        .foregroundStyle(color)
-                        .foregroundStyle(by: .value("Day", "current"))
-                        .accessibilityLabel("\(parseTime(from: hour.time))")
-                        .accessibilityValue("\(hour.temp_c)°C")
+            
+            GroupBox {
+                
+                VStack {
+                    HStack {
+                        VStack {
+                            switch currentChart {
+                            case .temperature:
+                                Text(String(format: "%.0f°C", max))
+                                    .padding(.horizontal, 5)
+                                    .font(.title3)
+                                Text(String(format: "%.0f°C", min))
+                                    .foregroundColor(.gray)
+                                    .padding(.horizontal, 5)
+                            case .visibility:
+                                Text(String(format: "%.0f km", max(of: hours.map { $0.vis_km })))
+                                    .padding(.horizontal, 5)
+                                    .font(.title3)
+                                Text(String(format: "%.0f km", min(of: hours.map{ $0.vis_km })))
+                                    .foregroundColor(.gray)
+                                    .padding(.horizontal, 5)
+                            case .precip:
+                                Text(String(format: "%.0f mm", max(of: hours.map { $0.precip_mm })))
+                                    .padding(.horizontal, 5)
+                                    .font(.title3)
+                                Text(String(format: "%.0f mm", min(of: hours.map{ $0.precip_mm })))
+                                    .foregroundColor(.gray)
+                                    .padding(.horizontal, 5)
+                            case .wind:
+                                Text(String(format: "%.0f km/h", max(of: hours.map { $0.wind_kph })))
+                                    .padding(.horizontal, 5)
+                                    .font(.title3)
+                                Text(String(format: "%.0f km/h", min(of: hours.map{ $0.wind_kph })))
+                                    .foregroundColor(.gray)
+                                    .padding(.horizontal, 5)
+                            case .chanceSnow:
+                                Text(String(format: "%.0f %", max(of: hours.map { Double($0.chanceOfSnow) })))
+                                    .padding(.horizontal, 5)
+                                    .font(.title3)
+                                Text(String(format: "%.0f %", min(of: hours.map{ Double($0.chanceOfSnow) })))
+                                    .foregroundColor(.gray)
+                                    .padding(.horizontal, 5)
+                            case .chanceRain:
+                                Text(String(format: "%.0f %", max(of: hours.map { Double($0.chanceOfRain) })))
+                                    .padding(.horizontal, 5)
+                                    .font(.title3)
+                                Text(String(format: "%.0f %", min(of: hours.map{ Double($0.chanceOfRain) })))
+                                    .foregroundColor(.gray)
+                                    .padding(.horizontal, 5)
+                            }
+                        }
+                        Spacer()
+                        Menu {
+                            Button {
+                                currentChart = .temperature
+                            } label: {
+                                Text("Temperature")
+                                Image(systemName: "thermometer")
+                            }
+                            Button {
+                                currentChart = .precip
+                            } label: {
+                                Text("Precipitation")
+                                Image(systemName: "drop.fill")
+                            }
+                            Button {
+                                currentChart = .visibility
+                            } label: {
+                                Text("Visibility")
+                                Image(systemName: "eyeglasses")
+                            }
+                            Button {
+                                currentChart = .wind
+                            } label: {
+                                Text("Wind in Km/h")
+                                Image(systemName: "wind")
+                            }
+                            Button {
+                                currentChart = .chanceRain
+                            } label: {
+                                Text("Chance of rain")
+                                Image(systemName: "umbrella.percent.fill")
+                            }
+                            Button {
+                                currentChart = .chanceSnow
+                            } label: {
+                                Text("Chance of snow")
+                                Image(systemName: "snow")
+                            }
+                        } label: {
+                            HStack {
+                                Image(systemName: "\(currentChart.toImage())")
+                                    .padding(.trailing, 3)
+                                Text("\(currentChart.toString())")
+                                Image(systemName: "chevron.down")
+                                    .padding(.leading, 3)
+                            }
+                            .padding(.all, 5)
+                            .background(Color.accentColor)
+                            .foregroundColor(.white)
+                            .cornerRadius(5.0)
+                            
+                        }
+                    }
                     
-                    AreaMark(x: .value("Hour", parseTime(from: hour.time)), yStart: .value("min temp", getYMin), yEnd: .value("max temp", roundTo2ndDecimalPlace(number: hour.temp_c)))
-                        .interpolationMethod(.cardinal)
-                        .foregroundStyle(gradient)
-                        .foregroundStyle(by: .value("Day", "current"))
-                        .accessibilityLabel("\(parseTime(from: hour.time))")
-                        .accessibilityValue("\(hour.temp_c)°C")
+                    switch currentChart {
+                    case .wind:
+                        UniversalChart(data: getWindMap, metric: " km/h")
+                    case .visibility:
+                        UniversalChart(data: getVisMap, metric: " km")
+                    case .precip:
+                        UniversalChart(data: getPrecipMap, metric: " mm")
+                    case .temperature:
+                        UniversalChart(data: getTempMap, metric: "°C")
+                    case .chanceRain:
+                        UniversalChart(data: getChanceOfRainMap, metric: " %")
+                    case .chanceSnow:
+                        UniversalChart(data: getChanceOfSnowMap, metric: " %")
+                    }
+                }
+            } label: {
+                HStack {
+                    Text("\(currentChart.toString()) on \(day) in \(city)")
+                        .font(.system(size: 15))
+                    Spacer()
+                    Image(systemName: "\(currentChart.toImage())")
+                        .padding(.horizontal)
                 }
             }
-            .chartLegend(.hidden)
-            .chartXAxis {
-                AxisMarks(position: .bottom, values: .automatic) { value in
-                    AxisGridLine(centered: true, stroke: StrokeStyle(dash: [1, 2]))
-                    AxisTick(centered: true, stroke: StrokeStyle(dash: [1, 2]))
-                    AxisValueLabel(centered: true)
-                }
-            }
-            .chartYAxis {
-                AxisMarks(position: .trailing, values: .automatic) { value in
-                    AxisGridLine(centered: true)
-                    AxisTick(centered: true)
-                    AxisValueLabel(verticalSpacing: 3)
-                }
-            }
-            .chartYScale(domain: getYDomain)
-            .chartPlotStyle { (plotArea) in
-                plotArea.backgroundStyle(.thinMaterial)
-            }
-            .frame(height: 300)
+            .groupBoxStyle(BackgroundGroupBoxStyle())
+            .padding()
             
             Spacer()
         }
     }
     
-    func parseTime(from: String) -> String {
-        let split = from.split(separator: " ")
-        return "\(split[1].split(separator: ":")[0])"
+    enum ChartOptions {
+        case temperature
+        case precip
+        case visibility
+        case wind
+        case chanceRain
+        case chanceSnow
+        
+        func toString() -> String {
+            switch self {
+            case .wind:
+                return "Wind"
+            case .visibility:
+                return "Visibility"
+            case .precip:
+                return "Precipitation"
+            case .temperature:
+                return "Temperature"
+            case .chanceRain:
+                return ""
+            case .chanceSnow:
+                return "Chance of snow"
+            }
+        }
+        func toImage() -> String {
+            switch self {
+            case .wind:
+                return "wind"
+            case .visibility:
+                return "eyeglasses"
+            case .precip:
+                return "drop.fill"
+            case .temperature:
+                return "thermometer"
+            case .chanceRain:
+                return "umbrella.percent.fill"
+            case .chanceSnow:
+                return "snow"
+            }
+        }
     }
     
-    func roundTo2ndDecimalPlace(number: Double) -> Double {
-        return round(number * 10) / 10
+    func average(of data: [Double]) -> Double {
+        var sum = 0.0
+        for entry in data {
+            sum += entry
+        }
+        return sum / Double(data.count)
+    }
+    
+    func max(of data: [Double]) -> Double {
+        return data.sorted().reversed()[0]
+    }
+    func min(of data: [Double]) -> Double {
+        return data.sorted()[0]
+    }
+}
+
+struct BackgroundGroupBoxStyle: GroupBoxStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.content
+            .padding(.top, 15)
+            .padding(20)
+            .background(.regularMaterial)
+            .cornerRadius(20)
+            .overlay(
+                configuration.label.padding(10),
+                alignment: .topLeading
+            )
     }
 }

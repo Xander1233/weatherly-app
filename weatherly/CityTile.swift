@@ -78,7 +78,7 @@ struct CityView: View {
                         
                         Section(header: Text("7-day Forecast")) {
                             ForEach(locData.forecast) { (day) in
-                                DayView(data: day)
+                                DayView(data: day, city: data)
                             }
                         }
                     }
