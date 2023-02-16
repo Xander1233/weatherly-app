@@ -2,12 +2,13 @@
 //  widgetsBundle.swift
 //  widgets
 //
-//  Created by David Neidhart on 28.12.22.
+//  Created by David Neidhart on 14.02.23.
 //
 
 import WidgetKit
 import SwiftUI
 import FirebaseCore
+import Firebase
 import FirebaseAuth
 
 @main
@@ -17,18 +18,14 @@ struct widgetsBundle: WidgetBundle {
         FirebaseApp.configure()
         
         do {
-            try Auth.auth().useUserAccessGroup("tech.xndr.weatherly.keychain")
-        } catch let error as NSError {
-            print("Error chaning user access group: %@", error)
-        }
-        
-        Auth.auth().addStateDidChangeListener() { (auth, user) in
-            print(#function, user ?? "No user")
+            try Auth.auth().useUserAccessGroup("MUR6LS7BQU.tech.xndr.weatherly.authKeychain")
+        } catch {
+            print(error)
         }
     }
     
     var body: some Widget {
-        widgets()
-        widgetsLiveActivity()
+        WeatherlyWidget()
+        CurrentLocationWidget()
     }
 }

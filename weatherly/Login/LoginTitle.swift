@@ -17,7 +17,7 @@ struct LoginPageTitle: View {
                 .font(.largeTitle)
                 .fontWeight(.semibold)
                 .padding(.bottom, 10)
-            Text("\(subtitle)")
+            Text(LocalizedStringKey(subtitle))
                 .font(.title2)
                 .foregroundColor(.gray)
                 .fontWeight(.regular)

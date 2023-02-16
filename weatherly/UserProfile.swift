@@ -70,7 +70,7 @@ struct UserProfile: View {
                             .onTapGesture {
                                 showEmailUnverifiedAlert = Auth.auth().currentUser?.isEmailVerified == false && email != "N/A"
                             }
-                            .alert("This E-Mail is not verified", isPresented: $showEmailUnverifiedAlert) {
+                            .alert(LocalizedStringKey("not-verified-email"), isPresented: $showEmailUnverifiedAlert) {
                                 Button(role: .cancel) {
                                     
                                 } label: {
@@ -81,7 +81,7 @@ struct UserProfile: View {
                                     Auth.auth().currentUser?.sendEmailVerification()
                                     showEmailUnverifiedAlert = false
                                 } label: {
-                                    Text("Send link")
+                                    Text("verify-now")
                                 }
                             }
                             
@@ -90,11 +90,11 @@ struct UserProfile: View {
                                     UIPasteboard.general.setValue(user!.uid,
                                                                   forPasteboardType: UTType.plainText.identifier)
                                 } label: {
-                                    Text("Copy")
+                                    Text("copy")
                                 }
                             } label: {
                                 HStack {
-                                    Text("User-ID")
+                                    Text("user-id")
                                         .font(.callout)
                                         .foregroundColor(.gray)
                                     Spacer()
@@ -109,7 +109,7 @@ struct UserProfile: View {
                                 Button {
                                     showPassword = true
                                 } label: {
-                                    Text("Change password")
+                                    Text("change-password")
                                 }
                                 .sheet(isPresented: $showPassword) {
                                     
@@ -118,16 +118,16 @@ struct UserProfile: View {
                                         Form {
                                             Section {
                                                 HStack {
-                                                    SecureField("Old password", text: $oldPassword)
+                                                    SecureField("old-password", text: $oldPassword)
                                                 }
                                             }
                                             
                                             Section {
                                                 HStack {
-                                                    SecureField("New password", text: $newPasword)
+                                                    SecureField("new-password", text: $newPasword)
                                                 }
                                                 HStack {
-                                                    SecureField("Repeat new password", text: $newPasswordVerification)
+                                                    SecureField("repeat-new-password", text: $newPasswordVerification)
                                                 }
                                             }
                                             
@@ -166,7 +166,7 @@ struct UserProfile: View {
                                                     if showProgressViewPassword {
                                                         ProgressView()
                                                     }
-                                                    Text("Save")
+                                                    Text("save")
                                                 }
                                                 .disabled(oldPassword.isEmpty || newPasword.isEmpty || newPasswordVerification.isEmpty || newPasword != newPasswordVerification)
                                             }
@@ -183,7 +183,7 @@ struct UserProfile: View {
                             Button {
                                 showSettings = true
                             } label: {
-                                Text("Settings")
+                                Text("settings")
                             }
                         }
                     }
@@ -215,7 +215,7 @@ struct UserProfile: View {
                             
                             showEdit = !showEdit
                         } label: {
-                            Text(showEdit ? "Save" : "Edit")
+                            Text(showEdit ? "save" : "edit")
                         }
                     }
                     
@@ -233,7 +233,7 @@ struct UserProfile: View {
                                 email = user!.email
                                 showEdit = false
                             } label: {
-                                Text("Cancel")
+                                Text("cancel")
                             }
                         }
                         
@@ -243,7 +243,7 @@ struct UserProfile: View {
                     Settings()
                 }
             }
-            .navigationTitle("Profile")
+            .navigationTitle("profile")
         }
         .onAppear {
             if let currentUser = Auth.auth().currentUser {

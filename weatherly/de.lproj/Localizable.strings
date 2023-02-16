@@ -1,54 +1,66 @@
-/* No comment provided by engineer. */
-"%@" = "%@";
+/* 
+  Localizable.strings
+  weatherly
 
-/* No comment provided by engineer. */
-"%@°C" = "%@°C";
-
-/* No comment provided by engineer. */
-"Don't have an account yet?" = "Du hast noch keinen Account?";
-
-/* No comment provided by engineer. */
-"E-Mail" = "E-Mail";
-
-/* No comment provided by engineer. */
-"Favorite" = "Favorit";
-
-/* No comment provided by engineer. */
-"Home" = "Home";
-
-/* No comment provided by engineer. */
-"Password" = "Passwort";
-
-/* No comment provided by engineer. */
-"Profile" = "Profil";
-
-/* No comment provided by engineer. */
-"Repeat password" = "Passwort wiederholen";
-
-/* No comment provided by engineer. */
-"Search" = "Suchen";
-
-/* No comment provided by engineer. */
-"Search for a city" = "Suche nach einer Stadt";
-
-/* No comment provided by engineer. */
-"Sign in" = "Einloggen";
-
-/* No comment provided by engineer. */
-"Sign out" = "Ausloggen";
-
-/* No comment provided by engineer. */
-"Sign up" = "Account erstellen";
-
-/* No comment provided by engineer. */
-"Unfavorite" = "Von Favoriten entfernen";
-
-/* No comment provided by engineer. */
-"Weatherly" = "Weatherly";
-
-/* No comment provided by engineer. */
-"You don't have any favorites. You can add them by searching for a location and swiping to the left on the location's tile" = "Du hast keine Favoriten. Du kannst welche hinzufügen, in dem du, beim Suchen, auf einer Stadt nach links wischst";
-
-/* No comment provided by engineer. */
-"You have an account?" = "Du hast einen Account?";
-
+  Created by David Neidhart on 03.02.23.
+  
+*/
+"current-location" = "Derzeitiger Standort";
+"no-favorites-error" = "Du hast derzeit keinen Standort als Favorit gespeichert.";
+"your-favorites" = "Deine Favoriten";
+"trending" = "Trends";
+"search" = "Suche";
+"search-for-city" = "Suche nach einer Stadt";
+"error-occured" = "Ein Fehler ist aufgetreten. Das hätte nicht passieren sollen.";
+"error %@" = "Fehler: %@";
+"7day-forecast" = "7-Tage Vorhersage";
+"fetch-data" = "Hole daten";
+"failed-to-add %@" = "Konnte nicht %@ zu deinen Favoriten hinzufügen";
+"not-verified-email" = "Deine E-Mail ist nicht verifiziert";
+"verify-now" = "Jetzt verifizieren";
+"copy" = "Kopieren";
+"user-id" = "Nutzer-ID";
+"change-password" = "Passwort ändern";
+"old-password" = "Altes Passwort";
+"new-password" = "Neues Passwort";
+"repeat-new-password" = "Passwort wiederholen";
+"save" = "Speichern";
+"settings" = "Einstellungen";
+"edit" = "Ändern";
+"cancel" = "Abbrechen";
+"profile" = "Profil";
+"failed-to-fetch-weather-data" = "Fehler beim holen der Wetter-Daten";
+"retreiving-data" = "Bekomme Daten";
+"done" = "Fertig";
+"temperature" = "Temperatur";
+"precipitation" = "Niederschlag";
+"visibility" = "Sichtbarkeit";
+"chance-of-rain" = "Regenwahrscheinlichkeit";
+"chance-of-snow" = "Schneewahrscheinlichkeit";
+"wind" = "Wind";
+"sign-up" = "Registrieren";
+"already-have-an-account" = "Du hast bereits einen Account?";
+"sign-in" = "Anmelden";
+"new-to-weatherly" = "Neu bei Weatherly?";
+"create-an-account" = "Erstelle einen Account";
+"or" = "Oder";
+"sign-in-with-google" = "Mit Google anmelden";
+"repeat-password" = "Passwort wiederholen";
+"password" = "Passwort";
+"what-is-your-name" = "Wie heißt du?";
+"your-name" = "Dein Name";
+"Next" = "Weiter";
+"when-is-your-birthday" = "Wann hast du Geburtstag?";
+"your-birthday" = "Dein Geburtstag";
+"underaged" = "Du bist zu jung!";
+"at-least-13" = "Du musst mindestens 13 Jahre alt sein, um diese app zu benutzen";
+"sign-in-with-apple" = "Mit Apple anmelden";
+"change-language" = "Sprache ändern";
+"sign-out" = "Abmelden";
+"delete-account" = "Account löschen";
+"are-you-sure" = "Bist du sicher?";
+"are-you-sure-delete-long" = "Bist du dir sicher, dass du deinen account löschen willst? Das ist unumkehrbar";
+"yes" = "Ja";
+"have-to-reauthenticate" = "Du musst dich neu authentifizieren um die Aktion auszuführen";
+"home" = "Favoriten";
+"favorites" = "Favoriten";

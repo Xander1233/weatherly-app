@@ -17,8 +17,6 @@ struct HomeView: View {
     
     @State var favorites: [City] = []
     
-    @State var name = "David"
-    
     @State var currentLocation: City?
     
     @StateObject var locationManager = LocationManager()
@@ -45,7 +43,7 @@ struct HomeView: View {
                     Section {
                         HStack {
                             Image(systemName: "location.fill")
-                            Text("Current location")
+                            Text("current-location")
                         }
                         .font(.caption)
                         .foregroundColor(.gray)
@@ -63,7 +61,7 @@ struct HomeView: View {
                     Section {
                         VStack {
                             HStack {
-                                Text("You don't have any favorites yet.")
+                                Text("no-favorites-error")
                                     .font(.title3)
                                     .padding()
                             }
@@ -73,7 +71,7 @@ struct HomeView: View {
                     
                     HStack {
                         Image(systemName: "star.fill")
-                        Text("Your favorites")
+                        Text("your-favorites")
                     }
                     .font(.caption)
                     .foregroundColor(.gray)
@@ -145,7 +143,7 @@ struct HomeView: View {
                     EditButton()
                 }
             }
-            .navigationTitle("Favorites")
+            .navigationTitle(LocalizedStringKey("favorites"))
         }
         .onAppear {
             getCurrentLocation()

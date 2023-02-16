@@ -22,7 +22,7 @@ struct LabelledDivider: View {
     var body: some View {
         HStack {
             line
-            Text(label).foregroundColor(color)
+            Text(LocalizedStringKey(label)).foregroundColor(color)
             line
         }
     }

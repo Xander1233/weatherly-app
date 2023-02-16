@@ -41,7 +41,7 @@ struct FavoriteView: View {
             }
             
             if failed {
-                Text("Failed to fetch weather data")
+                Text("failed-to-fetch-weather-data")
             } else if locData != nil {
                 
                 HStack {
@@ -51,8 +51,10 @@ struct FavoriteView: View {
                 }
                 
             } else {
-                ProgressView()
-                Text("Retreiving Data")
+                HStack {
+                    ProgressView()
+                    Text("retreiving-data")
+                }
             }
             
         }

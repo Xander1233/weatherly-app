@@ -25,7 +25,7 @@ struct SearchView: View {
             List {
                 
                 if searchQuery.count < 2 && trendings.count > 0 {
-                    Text("Trending")
+                    Text("trending")
                         .font(.system(size: 25))
                         .fontWeight(.bold)
                 }
@@ -46,9 +46,9 @@ struct SearchView: View {
                 }
             }
             .listStyle(.plain)
-            .navigationTitle("Search")
+            .navigationTitle("search")
             .navigationBarTitleDisplayMode(.inline)
-            .searchable(text: $searchQuery, prompt: "Search for a city")
+            .searchable(text: $searchQuery, prompt: LocalizedStringKey("search-for-city"))
             .onChange(of: searchQuery) { (newQ) in
                 getData()
             }

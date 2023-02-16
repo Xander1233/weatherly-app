@@ -16,11 +16,11 @@ struct LoginAlternativ: View {
     
     var body: some View {
         HStack {
-            Text(text)
+            Text(LocalizedStringKey(text))
             Button {
                 action()
             } label: {
-                Text(buttonText)
+                Text(LocalizedStringKey(buttonText))
             }
         }
     }    

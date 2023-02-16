@@ -31,7 +31,7 @@ struct ContentView: View {
                     .tabItem {
                         VStack {
                             Image(systemName: "house")
-                            Text("Home")
+                            Text("home")
                         }
                     }
                     .sheet(isPresented: $showUserSetup) {
@@ -43,7 +43,7 @@ struct ContentView: View {
                     .tabItem {
                         VStack {
                             Image(systemName: "magnifyingglass")
-                            Text("Search")
+                            Text("search")
                         }
                     }
                 
@@ -59,7 +59,7 @@ struct ContentView: View {
                     .tabItem {
                         VStack {
                             Image(systemName: "person")
-                            Text("Profile")
+                            Text("profile")
                         }
                     }
             }

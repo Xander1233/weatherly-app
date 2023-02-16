@@ -12,7 +12,7 @@ struct SignupSocialButtons: View {
     @State var googleSignup: () -> Void
     
     var body: some View {
-        SocialLoginButton(image: "google_logo", text: "Sign in with google")
+        SocialLoginButton(image: "google_logo", text: "sign-in-with-google")
             .background(.ultraThickMaterial)
             .padding(.horizontal)
             .onTapGesture {

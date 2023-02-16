@@ -20,23 +20,24 @@ struct UserSetupView: View {
         
         NavigationView {
             VStack {
-                Text("What is your name?")
+                Text("what-is-your-name")
                     .font(.largeTitle)
                     .fontWeight(.semibold)
                     .padding(.bottom, 10)
                     .padding(.top, 20)
                 
-                TextField("Your name", text: $displayName)
+                TextField("your-name", text: $displayName)
                     .padding()
                     .background(.thickMaterial)
                     .cornerRadius(5.0)
                     .padding([ .horizontal, .bottom ], 20)
+                    .textContentType(.name)
                 
                 NavigationLink{
                     BirthdaySetup(displayName: displayName, showUserSetup: $showUserSetup)
                 } label: {
                     HStack {
-                        Text("Next")
+                        Text("next")
                             .foregroundColor(.white)
                     }
                     .frame(maxWidth: .infinity)
@@ -48,7 +49,6 @@ struct UserSetupView: View {
             }
             .navigationTitle("Account Setup")
         }
-        
     }
 }
 
@@ -63,14 +63,14 @@ struct BirthdaySetup: View {
     
     var body: some View {
         VStack {
-            Text("When is your birthday?")
+            Text("when-is-your-birthday")
                 .font(.largeTitle)
                 .fontWeight(.semibold)
                 .padding(.bottom, 10)
                 .padding(.top, 20)
             
             DatePicker(selection: $birthdate, displayedComponents: .date) {
-                Text("Your birthday")
+                Text("your-birthday")
             }
             .padding()
             .background(.thickMaterial)
@@ -102,7 +102,7 @@ struct BirthdaySetup: View {
                 }
             } label: {
                 HStack {
-                    Text("Save")
+                    Text("save")
                         .foregroundColor(.white)
                 }
                 .frame(maxWidth: .infinity)
@@ -113,7 +113,7 @@ struct BirthdaySetup: View {
             }
         }
         .alert(isPresented: $showtooYoungAlert) {
-            Alert(title: Text("You are too young!"), message: Text("You must be at least 13 years old to use the app"), dismissButton: .cancel(Text("Ok")) {
+            Alert(title: Text("underaged"), message: Text("at-least-13"), dismissButton: .cancel(Text("Ok")) {
                 showUserSetup = false
                 
                 Auth.auth().currentUser!.delete { (error) in

@@ -16,6 +16,12 @@ struct weatherlyApp: App {
     init() {
         FirebaseApp.configure()
         
+        do {
+            try Auth.auth().useUserAccessGroup("MUR6LS7BQU.tech.xndr.weatherly.authKeychain")
+        } catch {
+            print(error.localizedDescription)
+        }
+        
         IAPManager.shared.startObserving()
         
         NotificationCenter.default.addObserver(forName: UIApplication.willTerminateNotification, object: nil, queue: .main) { _ in

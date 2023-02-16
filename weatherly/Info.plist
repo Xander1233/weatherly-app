@@ -2,10 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Weatherly uses your location to provide you with realtime data for your current location without having to search for it</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Weatherly uses your location to provide you with realtime data for your current location without having to search for it</string>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>

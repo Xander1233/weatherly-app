@@ -35,7 +35,7 @@ struct CityView: View {
             return []
         }
         
-        var array = getTimesAfterCurrentTime(times: locData?.forecast.first?.hours ?? [])
+        let array = getTimesAfterCurrentTime(times: locData?.forecast.first?.hours ?? [])
         
         let hasSunriseAlreadyOccured = !isHourBetweenNow(timeString: String(locData?.forecast.first?.astro.sunrise ?? "00:00 AM"))
         
@@ -50,13 +50,12 @@ struct CityView: View {
         
         VStack {
             if errorMessage != "" {
-                Text("An error occured. That shouldn't have happened.")
-                Text("Error: \(errorMessage)")
+                Text("error-occured")
+                Text("error \(errorMessage)")
             } else if let locData = locData {
                 
                 VStack {
                     List {
-                        
                         Section {
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack {
@@ -76,7 +75,7 @@ struct CityView: View {
                             }
                         }
                         
-                        Section(header: Text("7-day Forecast")) {
+                        Section(header: Text("7day-forecast")) {
                             ForEach(locData.forecast) { (day) in
                                 DayView(data: day, city: data)
                             }
@@ -87,12 +86,14 @@ struct CityView: View {
                     }
                 }
             } else {
-                ProgressView()
-                Text("Fetching Data")
+                HStack {
+                    ProgressView()
+                    Text("fetch-data")
+                }
             }
         }
         .alert(isPresented: $showAlert) {
-            Alert(title: Text("Failed to add " + data.name + " to your favorites"))
+            Alert(title: Text("failed-to-add %@"))
         }
         .toolbar {
             if locData != nil {
@@ -139,8 +140,6 @@ struct CityView: View {
         let hour = Int(hourComponents[0])! + (isAM ? 0 : 12)
         let minute = Int(hourComponents[1])!
         let hourDate = calendar.date(bySettingHour: hour, minute: minute, second: 0, of: .now)!
-        
-        let test = calendar.date(bySettingHour: 14, minute: 20, second: 0, of: .now)!
         
         return hourDate > now
     }
@@ -306,7 +305,69 @@ struct CityView: View {
                         
                     }
                     
-                    locData = WeatherDataCity(forecast: forecastRes)
+                    var alerts: [WeatherDataAlerts] = []
+                    
+                    if let alertsObj = resData["alerts"] as? [String: Any], let alertArray = alertsObj["alert"] as? [Any] {
+                        
+                        for i in 0..<alertArray.count {
+                            
+                            let alert = alertArray[i] as! [String: Any]
+                            
+                            let alertObj: WeatherDataAlerts?
+                            
+                            var headl: String?
+                            var severi: String?
+                            var area: String?
+                            var eventString: String?
+                            var notes: String?
+                            var effectiveFrom: String?
+                            var expiresOn: String?
+                            var descrip: String?
+                            var instruc: String?
+                            
+                            if let headline = alert["headline"] as? String {
+                                headl = headline
+                            }
+                            
+                            if let severity = alert["severity"] as? String {
+                                severi = severity
+                            }
+                            
+                            if let areas = alert["areas"] as? String {
+                                area = areas
+                            }
+                            
+                            if let event = alert["event"] as? String {
+                                eventString = event
+                            }
+                            
+                            if let note = alert["note"] as? String {
+                                notes = note
+                            }
+                            
+                            if let effective = alert["effective"] as? String {
+                                effectiveFrom = effective
+                            }
+                            
+                            if let expires = alert["expires"] as? String {
+                                expiresOn = expires
+                            }
+                            
+                            if let description = alert["desc"] as? String {
+                                descrip = description
+                            }
+                            
+                            if let instruction = alert["instruction"] as? String {
+                                instruc = instruction
+                            }
+                            
+                            alerts.append(WeatherDataAlerts(headline: headl!, severity: severi!, areas: area!, event: eventString!, note: notes!, effective: effectiveFrom!, expires: expiresOn!, description: descrip!, instruction: instruc!))
+                            
+                        }
+                        
+                    }
+                    
+                    locData = WeatherDataCity(forecast: forecastRes, alerts: alerts)
                 }
                 
             }
@@ -496,7 +557,6 @@ struct CityView: View {
 
 }
 
-
 struct WeatherDataCity {
     let id = UUID()
     var forecast: [WeatherDataForecastDay] = []
@@ -542,18 +602,6 @@ struct WeatherDataForecastDayHour: Identifiable {
 struct WeatherDataCondition {
     let text: String
     let code: Int
-}
-
-struct WeatherDataAlerts {
-    let headline: String
-    let severity: String
-    let areas: String
-    let event: String
-    let note: String
-    let effective: String
-    let expires: String
-    let description: String
-    let instruction: String
 }
 
 struct WeatherDataForecastDayAstro {

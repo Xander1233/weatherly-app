@@ -14,9 +14,9 @@ let twitterColor = Color.rgb(29, 161, 242)
 
 struct LoginScreen: View {
     
-    @State var email: String = "david.neidhart@gmx.net"
-    @State var password: String = "TestPass"
-    @State var repeatedPassword: String = "TestPass"
+    @State var email: String = ""
+    @State var password: String = ""
+    @State var repeatedPassword: String = ""
     
     @Binding var isLoggedIn: Bool
     @Binding var showUserSetup: Bool
@@ -31,13 +31,16 @@ struct LoginScreen: View {
     
     @State private var showProgressview = false
     
+    @State private var controller: SignInWithApple?
+    @State private var delegate: SignInWithAppleDelegate?
+    
     var body: some View {
         NavigationView {
             
             switch viewControl {
             case .Signin:
                 VStack {
-                    LoginPageTitle(subtitle: "Sign in")
+                    LoginPageTitle(subtitle: "sign-in")
                         .padding(.top, 40)
                     
                     if showMessage {
@@ -48,8 +51,10 @@ struct LoginScreen: View {
                         }
                     }
                     
-                    SocialLoginSigninButtons(useGoogleSignIn: useGoogleSignIn) {
-                        AppleSignIn().useAppleSignIn()
+                    SocialLoginSigninButtons(useGoogleSignIn: useGoogleSignIn, useAppleSignIn: {
+                        useAppleSignIn()
+                    }) {
+                        
                     }
                     
                     LabelledDivider(with: "or")
@@ -64,9 +69,9 @@ struct LoginScreen: View {
                     
                     LoginFields(email: $email, password: $password)
                     
-                    LoginButton(buttonText: "Sign in", showProgressview: $showProgressview, buttonAction: signin)
+                    LoginButton(buttonText: "sign-in", showProgressview: $showProgressview, buttonAction: signin)
                     
-                    LoginAlternativ(text: "New to Weatherly?", buttonText: "Create an account") {
+                    LoginAlternativ(text: "new-to-weatherly", buttonText: "create-an-account") {
                         showError = false
                         showProgressview = false
                         showMessage = false
@@ -142,6 +147,12 @@ struct LoginScreen: View {
                 }
             }
         }
+        .onAppear {
+            delegate = SignInWithAppleDelegate {
+                appleSignInFinished()
+            }
+            controller = SignInWithApple(delegate: delegate!)
+        }
     }
     
     func signin(email: String, password: String) {
@@ -167,6 +178,14 @@ struct LoginScreen: View {
                 }
             }
         }
+    }
+    
+    func useAppleSignIn() {
+        controller?.useAppleSignIn()
+    }
+    
+    func appleSignInFlow() {
+        controller?.performExistingAccountSetupFlow()
     }
     
     func signin() {
@@ -260,6 +279,10 @@ struct LoginScreen: View {
                 isLoggedIn = true
             }
         }
+    }
+    
+    func appleSignInFinished() {
+        isLoggedIn = true
     }
 }
 

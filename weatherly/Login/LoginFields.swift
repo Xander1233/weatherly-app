@@ -19,11 +19,18 @@ struct LoginFields: View {
                 .background(.thickMaterial)
                 .cornerRadius(5.0)
                 .padding([ .horizontal, .bottom ], 20)
+                .keyboardType(.emailAddress)
+                .textContentType(.emailAddress)
+                .autocorrectionDisabled(true)
+                .textInputAutocapitalization(.never)
             SecureField("Password", text: password)
                 .padding()
                 .background(.thickMaterial)
                 .cornerRadius(5.0)
                 .padding([ .horizontal ], 20)
+                .textContentType(.password)
+                .autocorrectionDisabled(true)
+                .textInputAutocapitalization(.never)
         }
     }
     

@@ -8,21 +8,40 @@
 import SwiftUI
 
 struct SocialLoginButton: View {
-    var image: String
-    var text: String
+    var image: String = ""
+    var text: String = ""
+    var showAppleLogo: Bool = false
+    
+    init(image: String, text: String) {
+        self.image = image
+        self.text = text
+    }
+    
+    init(text: String) {
+        self.text = text
+        self.showAppleLogo = true
+    }
     
     var body: some View{
         HStack{
-            Image(image)
-                .frame(width: 32, height: 32)
-                .padding(.horizontal, 12)
-                .padding(.trailing,10)
             
-            Text(text)
+            if showAppleLogo {
+                Image(systemName: "apple.logo")
+                    .frame(width: 32, height: 32)
+                    .padding(.horizontal, 12)
+                    .padding(.trailing, 10)
+            } else {
+                Image(image)
+                    .frame(width: 32, height: 32)
+                    .padding(.horizontal, 12)
+                    .padding(.trailing, 10)
+            }
+            
+            Text(LocalizedStringKey(text))
                 .bold()
-                .foregroundColor(Color.black)
+                .foregroundColor(.primary)
         }
-        .frame(maxWidth: .infinity, minHeight: 50)
+        .frame(maxWidth: .infinity, minHeight: 60)
         .cornerRadius(5.0)
     }
 }

@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import Foundation
+import AuthenticationServices
 
 struct SocialLoginSigninButtons: View {
     
@@ -13,20 +15,24 @@ struct SocialLoginSigninButtons: View {
     
     @State var useAppleSignIn: () -> Void
     
+    @State var performExistingAccountFlow: () -> Void
+    
     var body: some View {
-        SocialLoginButton(image: "google_logo", text: "Sign in with google")
+        SocialLoginButton(image: "google_logo", text: "sign-in-with-google")
             .background(.ultraThickMaterial)
             .padding(.horizontal)
             .onTapGesture {
                 useGoogleSignIn()
             }
         
-        SocialLoginButton(image: "", text: "Sign in with apple")
-            .background(.ultraThickMaterial)
+        QuickSignInWithApple()
+            .frame(maxWidth: .infinity, maxHeight: 60)
             .padding(.horizontal)
             .onTapGesture {
                 useAppleSignIn()
             }
+            .onAppear {
+                performExistingAccountFlow()
+            }
     }
 }
-

@@ -7,11 +7,16 @@
 
 import SwiftUI
 import Charts
+import CoreLocation
 
 struct UniversalChart: View {
     
     @State var data: [DataEntry]
     @State var metric: String
+    
+    @Binding var position: ChartPosition?
+    
+    @ObservedObject var locManager: LocationManager
     
     var getRealYMin: Double {
         let map = data.map {
@@ -67,7 +72,7 @@ struct UniversalChart: View {
     
     var body: some View {
         
-        let color = Color(hue: 0.69, saturation: 0.19, brightness: 0.79)
+        let color = Color.accentColor
         let gradient = LinearGradient(gradient: Gradient(colors: [
             color.opacity(0.5),
             color.opacity(0.2),
@@ -76,14 +81,6 @@ struct UniversalChart: View {
         
         Chart {
             ForEach(data) { (entry) in
-                LineMark(x: .value("Hour", parseDate(from: entry.label)), y: .value("data", roundTo2ndDecimalPlace(number: entry.data)))
-                    .interpolationMethod(.cardinal)
-                    .symbol(by: .value("Day", "current"))
-                    .symbolSize(30)
-                    .foregroundStyle(color)
-                    .foregroundStyle(by: .value("Day", "current"))
-                    .accessibilityLabel("\(parseDate(from: entry.label))")
-                    .accessibilityValue("\(entry.data)")
                 
                 AreaMark(x: .value("Hour", parseDate(from: entry.label)), yStart: .value("min entry", getYMin), yEnd: .value("max entry", roundTo2ndDecimalPlace(number: entry.data)))
                     .interpolationMethod(.cardinal)
@@ -91,6 +88,47 @@ struct UniversalChart: View {
                     .foregroundStyle(by: .value("Day", "current"))
                     .accessibilityLabel("\(parseDate(from: entry.label))")
                     .accessibilityValue("\(entry.data)")
+                
+                if let direction = entry.direction {
+                    LineMark(x: .value("Hour", parseDate(from: entry.label)), y: .value("data", roundTo2ndDecimalPlace(number: entry.data)))
+                        .interpolationMethod(.cardinal)
+                        .symbolSize(30)
+                        .symbol(symbol: {
+                            Image(systemName: "location.north.fill")
+                                .rotationEffect(Angle(degrees: locManager.degrees + direction))
+                                .foregroundColor(color)
+                                .frame(maxWidth: 5, maxHeight: 5)
+                                .font(.system(size: 10))
+                        })
+                        .foregroundStyle(color)
+                        .foregroundStyle(by: .value("Day", "current"))
+                        .accessibilityLabel("\(parseDate(from: entry.label))")
+                        .accessibilityValue("\(entry.data)")
+                } else {
+                    LineMark(x: .value("Hour", parseDate(from: entry.label)), y: .value("data", roundTo2ndDecimalPlace(number: entry.data)))
+                        .interpolationMethod(.cardinal)
+                        .symbol(by: .value("Day", "current"))
+                        .symbolSize(30)
+                        .foregroundStyle(color)
+                        .foregroundStyle(by: .value("Day", "current"))
+                        .accessibilityLabel("\(parseDate(from: entry.label))")
+                        .accessibilityValue("\(entry.data)")
+                }
+                
+                if let position = position {
+                    RuleMark(x: .value("Hour", parseDate(from: position.x)))
+                        .opacity(0.2)
+                        .foregroundStyle(.red)
+                        .lineStyle(StrokeStyle(lineWidth: 1, dash: [1, 2]))
+                    RuleMark(y: .value("data", position.y))
+                        .opacity(0.2)
+                        .foregroundStyle(.red)
+                        .lineStyle(StrokeStyle(lineWidth: 1, dash: [1, 2]))
+                    PointMark(x: .value("Hour", parseDate(from: position.x)), y: .value("data", position.y))
+                        .foregroundStyle(.red)
+                        .symbol(BasicChartSymbolShape.circle)
+                        .symbolSize(100)
+                }
             }
             
             if parseDate(from: data[0].label).compare(Date.now) == .orderedAscending {
@@ -104,7 +142,7 @@ struct UniversalChart: View {
             AxisMarks(position: .bottom, values: .automatic(minimumStride: 6)) { value in
                 AxisGridLine(centered: true, stroke: StrokeStyle(dash: [1, 2]))
                 AxisTick(centered: true, stroke: StrokeStyle(dash: [1, 2]))
-                AxisValueLabel(format: .dateTime.hour(.twoDigits(amPM: .omitted)))
+                AxisValueLabel(format: .dateTime.hour(.twoDigits(amPM: .wide)))
             }
         }
         .chartYAxis {
@@ -119,15 +157,34 @@ struct UniversalChart: View {
         }
         .chartYScale(domain: getYDomain)
         .frame(height: 300)
+        .chartOverlay { proxy in
+            GeometryReader { geometry in
+              Rectangle().fill(.clear).contentShape(Rectangle())
+                    .gesture(DragGesture().onChanged { value in updateCursorPosition(at: value.location, geometry: geometry, proxy: proxy, isTap: false) })
+                .onTapGesture { location in updateCursorPosition(at: location, geometry: geometry, proxy: proxy, isTap: true) }
+            }
+          }
     }
     
-    func parseDate(from dateString: String) -> Date {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
-        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-        dateFormatter.timeZone = TimeZone.current
-        return dateFormatter.date(from: dateString)!
-    }
+    func updateCursorPosition(at: CGPoint, geometry: GeometryProxy, proxy: ChartProxy, isTap: Bool) {
+        let origin = geometry[proxy.plotAreaFrame].origin
+        let datePos = proxy.value(atX: at.x - origin.x, as: Date.self)
+        let firstGreater = data.lastIndex(where: { parseDate(from: $0.label) < datePos! })
+        if let index = firstGreater {
+            let x = data[index].label
+            let y = data[index].data
+            let pos = ChartPosition(x: x, y: y, data: data[index], metric: metric)
+            
+            if let position = position {
+                if position.x == pos.x && isTap {
+                    self.position = nil
+                    return
+                }
+            }
+            
+            position = pos
+        }
+      }
 
     
     func roundTo2ndDecimalPlace(number: Double) -> Double {
@@ -139,4 +196,32 @@ struct DataEntry: Identifiable {
     let id = UUID()
     let label: String
     let data: Double
+    let direction: Double?
+    
+    init(label: String, data: Double, direction: Double) {
+        self.label = label
+        self.data = data
+        self.direction = direction
+    }
+    
+    init(label: String, data: Double) {
+        self.label = label
+        self.data = data
+        self.direction = nil
+    }
+}
+
+struct ChartPosition {
+    let x: String
+    let y: Double
+    let data: DataEntry
+    let metric: String
+}
+
+func parseDate(from dateString: String) -> Date {
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+    dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+    dateFormatter.timeZone = TimeZone.current
+    return dateFormatter.date(from: dateString)!
 }

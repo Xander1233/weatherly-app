@@ -29,7 +29,7 @@ struct Signup: View {
     
     var body: some View {
         
-        LoginPageTitle(subtitle: "Sign up")
+        LoginPageTitle(subtitle: "sign-up")
             .padding(.top, 40)
         
         if showMessage {
@@ -54,9 +54,9 @@ struct Signup: View {
             }
         }
         
-        LoginButton(buttonText: "Sign up", showProgressview: $showProgressview, buttonAction: signup)
+        LoginButton(buttonText: "sign-up", showProgressview: $showProgressview, buttonAction: signup)
         
-        LoginAlternativ(text: "Already have an account?", buttonText: "Sign in", action: viewControl)
+        LoginAlternativ(text: "already-have-an-account", buttonText: "sign-in", action: viewControl)
         
         Spacer()
         

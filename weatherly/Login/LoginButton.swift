@@ -23,7 +23,7 @@ struct LoginButton: View {
                     ProgressView()
                         .padding(.trailing, 10)
                 }
-                Text(buttonText)
+                Text(LocalizedStringKey(buttonText))
                     .foregroundColor(.white)
             }
             .frame(maxWidth: .infinity)
@@ -35,4 +35,3 @@ struct LoginButton: View {
         .disabled(showProgressview)
     }
 }
-

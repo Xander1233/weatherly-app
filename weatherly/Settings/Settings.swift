@@ -11,10 +11,6 @@ import GoogleSignIn
 
 struct Settings: View {
     
-    @State private var lang = "English"
-    
-    @State private var options = [ "English", "German" ]
-    
     @State private var showDeleteUserAlert = false
     @State private var showReauthentication = false
     @State private var reauthenticationSuccessful = false
@@ -24,13 +20,15 @@ struct Settings: View {
             Form {
                 
                 Section {
-                    Picker(selection: $lang, content: {
-                        ForEach(options, id: \.self) {
-                            Text("\($0)")
+                    Button {
+                        if let url = URL(string: UIApplication.openSettingsURLString) {
+                            if UIApplication.shared.canOpenURL(url) {
+                                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                            }
                         }
-                    }, label: {
-                        Text("Language")
-                    })
+                    } label: {
+                        Text("change-language")
+                    }
                 }
                 
                 Section {
@@ -49,21 +47,21 @@ struct Settings: View {
                             print(error.localizedDescription)
                         }
                     } label: {
-                        Text("Sign out")
+                        Text("sign-out")
                             .foregroundColor(.red)
                     }
                     
                     Button {
                         deleteUserFlow()
                     } label: {
-                        Text("Delete account")
+                        Text("delete-account")
                             .foregroundColor(.red)
                     }
                 }
             }
             .navigationTitle("Settings")
             .alert(isPresented: $showDeleteUserAlert) {
-                Alert(title: Text("Are you sure?"), message: Text("Are you sure you want to delete your account? This is irreversible"), primaryButton: .destructive(Text("Yes")) {
+                Alert(title: Text("are-you-sure"), message: Text("are-you-sure-delete-long"), primaryButton: .destructive(Text("yes")) {
                     print("deletion...")
                     
                     Auth.auth().currentUser!.delete { (error) in

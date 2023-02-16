@@ -55,7 +55,7 @@ struct DayView: View {
                     Button {
                         showSheet = false
                     } label: {
-                        Text("Done")
+                        Text("done")
                     }
                 }
                 .navigationTitle("Details")
