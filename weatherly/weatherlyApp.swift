@@ -27,9 +27,8 @@ struct weatherlyApp: App {
         NotificationCenter.default.addObserver(forName: UIApplication.willTerminateNotification, object: nil, queue: .main) { _ in
             IAPManager.shared.stopObserving()
         }
+        
     }
-    
-    
     
     @State var city: City? = nil
     
@@ -64,8 +63,6 @@ struct weatherlyApp: App {
                     LoginButton(buttonText: "Subscribe now", showProgressview: $showPremiumProgressView) {
                         print("Buying")
                     }
-                    
-                    
                 }
         }
         .onOpenURL { (url) in

@@ -131,6 +131,8 @@ struct WidgetView: View {
             Text("Test")
         case .accessoryInline:
             Text("Test")
+        @unknown default:
+            Text("Test")
         }
         
     }

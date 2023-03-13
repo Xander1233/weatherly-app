@@ -313,7 +313,7 @@ struct CityView: View {
                             
                             let alert = alertArray[i] as! [String: Any]
                             
-                            let alertObj: WeatherDataAlerts?
+                            // let alerts: WeatherDataAlerts?
                             
                             var headl: String?
                             var severi: String?
